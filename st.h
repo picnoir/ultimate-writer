@@ -115,7 +115,6 @@ typedef struct {
 	Line *line;   /* screen */
 	Line *alt;    /* alternate screen */
 	int *dirty;  /* dirtyness of lines */
-	GlyphFontSpec *specbuf; /* font spec buffer used for rendering */
 	TCursor c;    /* cursor */
 	int top;      /* top    scroll limit */
 	int bot;      /* bottom scroll limit */
@@ -176,7 +175,7 @@ typedef union {
 
 typedef struct {
 	uint mod;
-	KeySym keysym;
+	uint keysym;
 	void (*func)(const Arg *);
 	const Arg arg;
 } Shortcut;
@@ -197,7 +196,6 @@ void ttywrite(const char *, size_t);
 
 void resettitle(void);
 
-char *kmap(KeySym, uint);
 void cresize(int, int);
 void selclear(void);
 
@@ -237,17 +235,9 @@ extern double usedfontsize;
 extern double defaultfontsize;
 
 /* config.h globals */
-extern char font[];
 extern int borderpx;
 extern float cwscale;
 extern float chscale;
-extern unsigned int doubleclicktimeout;
-extern unsigned int tripleclicktimeout;
-extern int allowaltscreen;
-extern unsigned int xfps;
-extern unsigned int actionfps;
-extern unsigned int cursorthickness;
-extern unsigned int blinktimeout;
 extern char termname[];
 extern const char *colorname[];
 extern size_t colornamelen;
@@ -258,13 +248,8 @@ extern unsigned int defaultrcs;
 extern unsigned int cursorshape;
 extern unsigned int cols;
 extern unsigned int rows;
-extern unsigned int mouseshape;
-extern unsigned int mousefg;
-extern unsigned int mousebg;
 extern unsigned int defaultattr;
-extern MouseShortcut mshortcuts[];
 extern size_t mshortcutslen;
-extern Shortcut shortcuts[];
 extern size_t shortcutslen;
 extern uint forceselmod;
 extern uint selmasks[];

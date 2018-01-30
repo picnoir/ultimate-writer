@@ -24,9 +24,6 @@
 #include <fontconfig/fontconfig.h>
 #include <wchar.h>
 
-/* X11 */
-#include <X11/cursorfont.h>
-#include <X11/Xft/Xft.h>
 
 char *argv0;
 
@@ -115,21 +112,8 @@ typedef struct {
 	int narg;              /* nb of args */
 } STREscape;
 
-typedef struct {
-	KeySym k;
-	uint mask;
-	char *s;
-	/* three valued logic variables: 0 indifferent, 1 on, -1 off */
-	signed char appkey;    /* application keypad */
-	signed char appcursor; /* application cursor */
-	signed char crlf;      /* crlf mode          */
-} Key;
-
 /* function definitions used in config.h */
-static void clipcopy(const Arg *);
-static void clippaste(const Arg *);
 static void numlock(const Arg *);
-static void selpaste(const Arg *);
 static void zoom(const Arg *);
 static void zoomabs(const Arg *);
 static void zoomreset(const Arg *);
@@ -231,12 +215,6 @@ static uchar utfbyte[UTF_SIZ + 1] = {0x80,    0, 0xC0, 0xE0, 0xF0};
 static uchar utfmask[UTF_SIZ + 1] = {0xC0, 0x80, 0xE0, 0xF0, 0xF8};
 static Rune utfmin[UTF_SIZ + 1] = {       0,    0,  0x80,  0x800,  0x10000};
 static Rune utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
-
-/* config.h array lengths */
-size_t colornamelen = LEN(colorname);
-size_t mshortcutslen = LEN(mshortcuts);
-size_t shortcutslen = LEN(shortcuts);
-size_t selmaskslen = LEN(selmasks);
 
 ssize_t
 xwrite(int fd, const char *s, size_t len)
@@ -418,18 +396,6 @@ base64dec(const char *src)
 	}
 	*dst = '\0';
 	return result;
-}
-
-void
-selinit(void)
-{
-	clock_gettime(CLOCK_MONOTONIC, &sel.tclick1);
-	clock_gettime(CLOCK_MONOTONIC, &sel.tclick2);
-	sel.mode = SEL_IDLE;
-	sel.snap = 0;
-	sel.ob.x = -1;
-	sel.primary = NULL;
-	sel.clipboard = NULL;
 }
 
 int
@@ -635,24 +601,6 @@ getsel(void)
 }
 
 void
-selpaste(const Arg *dummy)
-{
-	xselpaste();
-}
-
-void
-clipcopy(const Arg *dummy)
-{
-	xclipcopy();
-}
-
-void
-clippaste(const Arg *dummy)
-{
-	xclippaste();
-}
-
-void
 selclear(void)
 {
 	if (sel.ob.x == -1)
@@ -706,7 +654,6 @@ execsh(void)
 	setenv("SHELL", sh, 1);
 	setenv("HOME", pw->pw_dir, 1);
 	setenv("TERM", termname, 1);
-	xsetenv();
 
 	signal(SIGCHLD, SIG_DFL);
 	signal(SIGHUP, SIG_DFL);
@@ -1518,22 +1465,18 @@ tsetmode(int priv, int set, int *args, int narg)
 				MODBIT(term.mode, !set, MODE_HIDE);
 				break;
 			case 9:    /* X10 mouse compatibility mode */
-				xsetpointermotion(0);
 				MODBIT(term.mode, 0, MODE_MOUSE);
 				MODBIT(term.mode, set, MODE_MOUSEX10);
 				break;
 			case 1000: /* 1000: report button press */
-				xsetpointermotion(0);
 				MODBIT(term.mode, 0, MODE_MOUSE);
 				MODBIT(term.mode, set, MODE_MOUSEBTN);
 				break;
 			case 1002: /* 1002: report motion on button press */
-				xsetpointermotion(0);
 				MODBIT(term.mode, 0, MODE_MOUSE);
 				MODBIT(term.mode, set, MODE_MOUSEMOTION);
 				break;
 			case 1003: /* 1003: enable all mouse motions */
-				xsetpointermotion(set);
 				MODBIT(term.mode, 0, MODE_MOUSE);
 				MODBIT(term.mode, set, MODE_MOUSEMANY);
 				break;
@@ -1547,24 +1490,8 @@ tsetmode(int priv, int set, int *args, int narg)
 				MODBIT(term.mode, set, MODE_8BIT);
 				break;
 			case 1049: /* swap screen & set/restore cursor as xterm */
-				if (!allowaltscreen)
-					break;
-				tcursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
-				/* FALLTHROUGH */
 			case 47: /* swap screen */
 			case 1047:
-				if (!allowaltscreen)
-					break;
-				alt = IS_SET(MODE_ALTSCREEN);
-				if (alt) {
-					tclearregion(0, 0, term.col-1,
-							term.row-1);
-				}
-				if (set ^ alt) /* set is always 1 or 0 */
-					tswapscreen();
-				if (*args != 1049)
-					break;
-				/* FALLTHROUGH */
 			case 1048:
 				tcursor((set) ? CURSOR_SAVE : CURSOR_LOAD);
 				break;
@@ -1868,21 +1795,8 @@ strhandle(void)
 		case 0:
 		case 1:
 		case 2:
-			if (narg > 1)
-				xsettitle(strescseq.args[1]);
 			return;
 		case 52:
-			if (narg > 2) {
-				char *dec;
-
-				dec = base64dec(strescseq.args[2]);
-				if (dec) {
-					xsetsel(dec, CurrentTime);
-					clipcopy(NULL);
-				} else {
-					fprintf(stderr, "erresc: invalid base64\n");
-				}
-			}
 			return;
 		case 4: /* color set */
 			if (narg < 3)
@@ -1890,21 +1804,10 @@ strhandle(void)
 			p = strescseq.args[2];
 			/* FALLTHROUGH */
 		case 104: /* color reset, here p = NULL */
-			j = (narg > 1) ? atoi(strescseq.args[1]) : -1;
-			if (xsetcolorname(j, p)) {
-				fprintf(stderr, "erresc: invalid color %s\n", p);
-			} else {
-				/*
-				 * TODO if defaultbg color is changed, borders
-				 * are dirty
-				 */
-				redraw();
-			}
 			return;
 		}
 		break;
 	case 'k': /* old title set compatibility */
-		xsettitle(strescseq.args[0]);
 		return;
 	case 'P': /* DCS -- Device Control String */
 		term.mode |= ESC_DCS;
@@ -1993,7 +1896,7 @@ tprinter(char *s, size_t len)
 void
 iso14755(const Arg *arg)
 {
-	unsigned long id = xwinid();
+	unsigned long id = 0;
 	char cmd[sizeof(ISO14755CMD) + NUMMAXLEN(id)];
 	FILE *p;
 	char *us, *e, codepoint[9], uc[UTF_SIZ];
@@ -2184,11 +2087,6 @@ tcontrolcode(uchar ascii)
 		if (term.esc & ESC_STR_END) {
 			/* backwards compatibility to xterm */
 			strhandle();
-		} else {
-			if (!(win.state & WIN_FOCUSED))
-				xseturgency(1);
-			if (bellvolume)
-				xbell(bellvolume);
 		}
 		break;
 	case '\033': /* ESC */
@@ -2320,8 +2218,6 @@ eschandle(uchar ascii)
 		break;
 	case 'c': /* RIS -- Reset to inital state */
 		treset();
-		resettitle();
-		xloadcols();
 		break;
 	case '=': /* DECPAM -- Application keypad */
 		term.mode |= MODE_APPKEYPAD;
@@ -2528,9 +2424,6 @@ tresize(int col, int row)
 		free(term.alt[i]);
 	}
 
-	/* resize to new width */
-	term.specbuf = xrealloc(term.specbuf, col * sizeof(GlyphFontSpec));
-
 	/* resize to new height */
 	term.line = xrealloc(term.line, row * sizeof(Line));
 	term.alt  = xrealloc(term.alt,  row * sizeof(Line));
@@ -2591,12 +2484,9 @@ zoom(const Arg *arg)
 void
 zoomabs(const Arg *arg)
 {
-	xunloadfonts();
-	xloadfonts(usedfont, arg->f);
 	cresize(0, 0);
 	ttyresize();
 	redraw();
-	xhints();
 }
 
 void
@@ -2611,68 +2501,16 @@ zoomreset(const Arg *arg)
 }
 
 void
-resettitle(void)
-{
-	xsettitle(opt_title ? opt_title : "st");
-}
-
-void
 redraw(void)
 {
 	tfulldirt();
-	draw();
 }
 
-int
-match(uint mask, uint state)
-{
-	return mask == XK_ANY_MOD || mask == (state & ~ignoremod);
-}
 
 void
 numlock(const Arg *dummy)
 {
 	term.numlock ^= 1;
-}
-
-char*
-kmap(KeySym k, uint state)
-{
-	Key *kp;
-	int i;
-
-	/* Check for mapped keys out of X11 function keys. */
-	for (i = 0; i < LEN(mappedkeys); i++) {
-		if (mappedkeys[i] == k)
-			break;
-	}
-	if (i == LEN(mappedkeys)) {
-		if ((k & 0xFFFF) < 0xFD00)
-			return NULL;
-	}
-
-	for (kp = key; kp < key + LEN(key); kp++) {
-		if (kp->k != k)
-			continue;
-
-		if (!match(kp->mask, state))
-			continue;
-
-		if (IS_SET(MODE_APPKEYPAD) ? kp->appkey < 0 : kp->appkey > 0)
-			continue;
-		if (term.numlock && kp->appkey == 2)
-			continue;
-
-		if (IS_SET(MODE_APPCURSOR) ? kp->appcursor < 0 : kp->appcursor > 0)
-			continue;
-
-		if (IS_SET(MODE_CRLF) ? kp->crlf < 0 : kp->crlf > 0)
-			continue;
-
-		return kp->s;
-	}
-
-	return NULL;
 }
 
 void
@@ -2689,7 +2527,6 @@ cresize(int width, int height)
 	row = (win.h - 2 * borderpx) / win.ch;
 
 	tresize(col, row);
-	xresize(col, row);
 }
 
 void
