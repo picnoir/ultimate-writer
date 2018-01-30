@@ -132,7 +132,7 @@ void sdisplay_frame(const unsigned char* frame_buffer){
       ssend_data(temp2); 
     }
   }
-  //TODO: try without refreshing
+  //TODO: try this without refreshing
   ssend_command(DISPLAY_REFRESH);
   delay_ms(100);
   swait_until_idle();
@@ -149,4 +149,115 @@ void ssleep(void){
   swait_until_idle();
   ssend_command(DEEP_SLEEP);
   ssend_data(0xa5);
+}
+
+// Framebuffer painting functions.
+//
+// Note: these function have been greatly inspired by waveshare's
+// epdpaint.cpp.
+//=====================
+
+void pclear (int colored, unsigned char* frame_buffer) {
+  for (int x = 0; x < EPD_WIDTH; x++) {
+    for (int y = 0; y < EPD_HEIGHT; y++) {
+        pdraw_absolute_pixel(x, y, colored, frame_buffer);
+    }
+  }
+}
+
+void pdraw_absolute_pixel(int x, int y, int colored, unsigned char* frame_buffer) {
+  if (x < 0 || x >= EPD_WIDTH || y < 0 || y >= EPD_HEIGHT) {
+    return;
+  }
+  if (IF_INVERT_COLOR) {
+    if (colored) {
+      frame_buffer[(x + y * EPD_WIDTH) / 8] |= 0x80 >> (x % 8);
+    } else {
+      frame_buffer[(x + y * EPD_WIDTH) / 8] &= ~(0x80 >> (x % 8));
+    }
+  } else {
+    if (colored) {
+      frame_buffer[(x + y * EPD_WIDTH) / 8] &= ~(0x80 >> (x % 8));
+    } else {
+      frame_buffer[(x + y * EPD_WIDTH) / 8] |= 0x80 >> (x % 8);
+    }
+  }
+}
+
+void pdraw_char_at(int x, int y, char ascii_char, sFONT* font, int colored, unsigned char* frame_buffer){
+  int i, j;
+  unsigned int char_offset = (ascii_char - ' ') * font->Height * (font->Width / 8 + (font->Width % 8 ? 1 : 0));
+  const unsigned char* ptr = &font->table[char_offset];
+
+  for (j = 0; j < font->Height; j++){
+    for (i = 0; i < font->Width; i++){
+      if (*ptr & (0x80 >> (i % 8))){
+        pdraw_absolute_pixel(x + i, y + j, colored, frame_buffer);
+      }
+      if (i % 8 == 7){
+        ptr++;
+      }
+    }
+    if (font->Width % 8 != 0){
+      ptr++;
+    }
+  }
+}
+
+void pdraw_string_at(int x, int y, const char* text, sFONT* font, int colored, unsigned char* frame_buffer){
+  const char* p_text = text;
+  unsigned int counter = 0;
+  int refcolumn = x;
+  
+  /* Send the string character by character on EPD */
+  while (*p_text != 0) {
+    /* Display one character on EPD */
+    pdraw_char_at(refcolumn, y, *p_text, font, colored, frame_buffer);
+    /* Decrement the column position by 16 */
+    refcolumn += font->Width;
+    /* Point on the next character */
+    p_text++;
+    counter++;
+  }
+}
+
+void pdraw_line(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer){
+  /* Bresenham algorithm */
+  int dx = x1 - x0 >= 0 ? x1 - x0 : x0 - x1;
+  int sx = x0 < x1 ? 1 : -1;
+  int dy = y1 - y0 <= 0 ? y1 - y0 : y0 - y1;
+  int sy = y0 < y1 ? 1 : -1;
+  int err = dx + dy;
+
+  while((x0 != x1) && (y0 != y1)) {
+    pdraw_absolute_pixel(x0, y0 , colored, frame_buffer);
+    if (2 * err >= dy) {     
+      err += dy;
+      x0 += sx;
+    }
+    if (2 * err <= dx) {
+      err += dx; 
+      y0 += sy;
+    }
+  }
+}
+
+void pdraw_filled_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer){
+  int min_x, min_y, max_x, max_y;
+  int i;
+  min_x = x1 > x0 ? x0 : x1;
+  max_x = x1 > x0 ? x1 : x0;
+  min_y = y1 > y0 ? y0 : y1;
+  max_y = y1 > y0 ? y1 : y0;
+  
+  for (i = min_x; i <= max_x; i++) {
+    pdraw_vertical_line(i, min_y, max_y - min_y + 1, colored, frame_buffer);
+  }
+}
+
+void pdraw_vertical_line(int x, int y, int line_height, int colored, unsigned char* frame_buffer){
+  int i;
+  for (i = y; i < y + line_height; i++) {
+    pdraw_absolute_pixel(x, i, colored, frame_buffer);
+  }
 }

@@ -2,6 +2,8 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
+#include "fonts.h"
+
 // Pin definition
 #define RST_PIN         17
 #define DC_PIN          25
@@ -55,6 +57,9 @@
 #define READ_VCOM_VALUE                             0x81
 #define VCM_DC_SETTING                              0x82
 
+// Color inverse. 1 or 0 = set or reset a bit if set a colored pixel
+#define IF_INVERT_COLOR     0
+
 // Dirty hack. We don't need this 
 // struct. TODO clean this.
 typedef int GlyphFontSpec;
@@ -77,5 +82,12 @@ void ssend_data(unsigned char data);
 void sdisplay_frame(const unsigned char* frame_buffer);
 void swait_until_idle(void);
 void ssleep(void);
-
+// Framebuffer painting functions.
+void pclear(int colored, unsigned char* frame_buffer);
+void pdraw_absolute_pixel(int x, int y, int colored, unsigned char* frame_buffer);
+void pdraw_char_at(int x, int y, char ascii_char, sFONT* font, int colored, unsigned char* frame_buffer);
+void pdraw_string_at(int x, int y, const char* text, sFONT* font, int colored, unsigned char* frame_buffer);
+void pdraw_line(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
+void pdraw_vertical_line(int x, int y, int height, int colored, unsigned char* frame_buffer);
+void pdraw_filled_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
 #endif
