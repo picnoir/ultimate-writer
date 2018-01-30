@@ -30,7 +30,7 @@ char *argv0;
 #define Glyph Glyph_
 #define Font Font_
 
-#include "win.h"
+#include "screen.h"
 #include "st.h"
 
 #if   defined(__linux)

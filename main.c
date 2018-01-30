@@ -15,7 +15,7 @@
 #define Glyph Glyph_
 #define Font Font_
 
-#include "win.h"
+#include "screen.h"
 #include "st.h"
 
 /* XEMBED messages */
@@ -47,6 +47,8 @@ run(void)// TODO
 	/* Waiting for window mapping */
 
 	ttynew();
+
+  /* Init E-Ink screen */
 
 	for (1;;) {
 		FD_ZERO(&rfd);
