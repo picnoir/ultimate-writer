@@ -40,7 +40,7 @@ sixd_to_16bit(int x)
 }
 
 void
-run(void)// TODO
+run(void)
 {
 	int w = win.w, h = win.h;
 	fd_set rfd;
@@ -49,6 +49,18 @@ run(void)// TODO
 	ttynew();
 
   /* Init E-Ink screen */
+  if (init_if() != 0){
+    printf("e-Paper init failed\n");
+    return;
+  }
+
+  /* E-ink test */
+  unsigned char* frame_buffer = (unsigned char*)malloc(EPD_WIDTH / 8 * EPD_HEIGHT);
+  pclear(UNCOLORED, frame_buffer);
+  pdraw_string_at(100, 10, "Hello world?", &Font24, UNCOLORED, frame_buffer);
+  pdraw_line(20, 80, 180, 280, COLORED, frame_buffer);
+  pdraw_filled_rectangle(200, 80, 210, 30, COLORED, frame_buffer);
+  sdisplay_frame(frame_buffer);
 
 	for (1;;) {
 		FD_ZERO(&rfd);

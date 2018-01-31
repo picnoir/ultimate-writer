@@ -12,7 +12,9 @@ int init_if(void){
   bcm2835_gpio_fsel(DC_PIN, BCM2835_GPIO_FSEL_OUTP);
   bcm2835_gpio_fsel(BUSY_PIN, BCM2835_GPIO_FSEL_INPT);
 
-  bcm2835_spi_begin();                                         //Start spi interface, set spi pin for the reuse function
+  if(!bcm2835_spi_begin()){                                         //Start spi interface, set spi pin for the reuse function
+    return -1;
+  }
   bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);     //High first transmission
   bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);                  //spi mode 0
   bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_128);  //Frequency
@@ -160,12 +162,12 @@ void ssleep(void){
 void pclear (int colored, unsigned char* frame_buffer) {
   for (int x = 0; x < EPD_WIDTH; x++) {
     for (int y = 0; y < EPD_HEIGHT; y++) {
-        pdraw_absolute_pixel(x, y, colored, frame_buffer);
+        pdraw_pixel(x, y, colored, frame_buffer);
     }
   }
 }
 
-void pdraw_absolute_pixel(int x, int y, int colored, unsigned char* frame_buffer) {
+void pdraw_pixel(int x, int y, int colored, unsigned char* frame_buffer) {
   if (x < 0 || x >= EPD_WIDTH || y < 0 || y >= EPD_HEIGHT) {
     return;
   }
@@ -192,7 +194,7 @@ void pdraw_char_at(int x, int y, char ascii_char, sFONT* font, int colored, unsi
   for (j = 0; j < font->Height; j++){
     for (i = 0; i < font->Width; i++){
       if (*ptr & (0x80 >> (i % 8))){
-        pdraw_absolute_pixel(x + i, y + j, colored, frame_buffer);
+        pdraw_pixel(x + i, y + j, colored, frame_buffer);
       }
       if (i % 8 == 7){
         ptr++;
@@ -230,7 +232,7 @@ void pdraw_line(int x0, int y0, int x1, int y1, int colored, unsigned char* fram
   int err = dx + dy;
 
   while((x0 != x1) && (y0 != y1)) {
-    pdraw_absolute_pixel(x0, y0 , colored, frame_buffer);
+    pdraw_pixel(x0, y0 , colored, frame_buffer);
     if (2 * err >= dy) {     
       err += dy;
       x0 += sx;
@@ -258,6 +260,6 @@ void pdraw_filled_rectangle(int x0, int y0, int x1, int y1, int colored, unsigne
 void pdraw_vertical_line(int x, int y, int line_height, int colored, unsigned char* frame_buffer){
   int i;
   for (i = y; i < y + line_height; i++) {
-    pdraw_absolute_pixel(x, i, colored, frame_buffer);
+    pdraw_pixel(x, i, colored, frame_buffer);
   }
 }

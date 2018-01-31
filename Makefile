@@ -4,7 +4,7 @@
 
 include config.mk
 
-SRC = st.c main.c screen.c
+SRC = st.c main.c screen.c font12.c font16.c font20.c font24.c font8.c
 OBJ = $(SRC:.c=.o)
 
 all: options st
@@ -24,6 +24,7 @@ config.h:
 st.o: config.h st.h screen.h
 screen.o: config.h screen.h
 main.o: arg.h st.h screen.h
+font.o: font.h
 
 $(OBJ): config.h config.mk
 

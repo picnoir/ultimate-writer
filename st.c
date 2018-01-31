@@ -21,7 +21,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <libgen.h>
-#include <fontconfig/fontconfig.h>
 #include <wchar.h>
 
 
