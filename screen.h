@@ -5,18 +5,18 @@
 #include "fonts.h"
 
 // Pin definition
-#define RST_PIN         17
-#define DC_PIN          25
-#define CS_PIN           8
-#define BUSY_PIN        24
+#define RST_PIN                                     17
+#define DC_PIN                                      25
+#define CS_PIN                                      8
+#define BUSY_PIN                                    24
 
 // Pin level definition
-#define LOW             0
-#define HIGH            1
+#define LOW                                         0
+#define HIGH                                        1
 
 // Display resolution
-#define EPD_WIDTH       640
-#define EPD_HEIGHT      384
+#define EPD_WIDTH                                   640
+#define EPD_HEIGHT                                  384
 
 // EPD7IN5 commands
 #define PANEL_SETTING                               0x00
@@ -57,16 +57,21 @@
 #define READ_VCOM_VALUE                             0x81
 #define VCM_DC_SETTING                              0x82
 
-// Color inverse. 1 or 0 = set or reset a bit if set a colored pixel
-#define IF_INVERT_COLOR     0
+// Display orientation
+#define ROTATE_0                                    0
+#define ROTATE_90                                   1
+#define ROTATE_180                                  2
+#define ROTATE_270                                  3
 
-#define COLORED      1
-#define UNCOLORED    0
+// Color inverse. 1 or 0 = set or reset a bit if set a colored pixel
+#define IF_INVERT_COLOR                             0
+
+#define COLORED                                     1
+#define UNCOLORED                                   0
 
 // Dirty hack. We don't need this 
 // struct. TODO clean this.
 typedef int GlyphFontSpec;
-
 
 void run(void);
 
@@ -87,10 +92,13 @@ void swait_until_idle(void);
 void ssleep(void);
 // Framebuffer painting functions.
 void pclear(int colored, unsigned char* frame_buffer);
+void pdraw_absolute_pixel(int x, int y, int colored, unsigned char* frame_buffer);
 void pdraw_pixel(int x, int y, int colored, unsigned char* frame_buffer);
 void pdraw_char_at(int x, int y, char ascii_char, sFONT* font, int colored, unsigned char* frame_buffer);
 void pdraw_string_at(int x, int y, const char* text, sFONT* font, int colored, unsigned char* frame_buffer);
 void pdraw_line(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
 void pdraw_vertical_line(int x, int y, int height, int colored, unsigned char* frame_buffer);
+void pdraw_horizontal_line(int x, int y, int width, int colored, unsigned char* frame_buffer);
+void pdraw_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
 void pdraw_filled_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
 #endif

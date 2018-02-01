@@ -57,9 +57,8 @@ run(void)
   /* E-ink test */
   unsigned char* frame_buffer = (unsigned char*)malloc(EPD_WIDTH / 8 * EPD_HEIGHT);
   pclear(UNCOLORED, frame_buffer);
-  pdraw_string_at(100, 10, "Hello world?", &Font24, UNCOLORED, frame_buffer);
-  pdraw_line(20, 80, 180, 280, COLORED, frame_buffer);
-  pdraw_filled_rectangle(200, 80, 210, 30, COLORED, frame_buffer);
+  pdraw_filled_rectangle(10, 10, 20, 20, COLORED, frame_buffer);
+  pdraw_string_at(100, 10, "It finally works!", &Font16, COLORED, frame_buffer);
   sdisplay_frame(frame_buffer);
 
 	for (1;;) {

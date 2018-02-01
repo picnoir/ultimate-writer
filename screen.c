@@ -2,6 +2,8 @@
 #include <bcm2835.h>
 
 
+int sorientation = ROTATE_0;
+
 //Interface-Level primitives
 //==========================
 int init_if(void){
@@ -162,12 +164,12 @@ void ssleep(void){
 void pclear (int colored, unsigned char* frame_buffer) {
   for (int x = 0; x < EPD_WIDTH; x++) {
     for (int y = 0; y < EPD_HEIGHT; y++) {
-        pdraw_pixel(x, y, colored, frame_buffer);
+        pdraw_absolute_pixel(x, y, colored, frame_buffer);
     }
   }
 }
 
-void pdraw_pixel(int x, int y, int colored, unsigned char* frame_buffer) {
+void pdraw_absolute_pixel(int x, int y, int colored, unsigned char* frame_buffer) {
   if (x < 0 || x >= EPD_WIDTH || y < 0 || y >= EPD_HEIGHT) {
     return;
   }
@@ -183,6 +185,39 @@ void pdraw_pixel(int x, int y, int colored, unsigned char* frame_buffer) {
     } else {
       frame_buffer[(x + y * EPD_WIDTH) / 8] |= 0x80 >> (x % 8);
     }
+  }
+}
+
+void pdraw_pixel(int x, int y, int colored, unsigned char* frame_buffer) {
+  int point_temp;
+  if (sorientation == ROTATE_0) {
+    if(x < 0 || x >= EPD_WIDTH || y < 0 || y >= EPD_HEIGHT) {
+      return;
+    }
+    pdraw_absolute_pixel(x, y, colored, frame_buffer);
+  } else if (sorientation == ROTATE_90) {
+    if(x < 0 || x >= EPD_HEIGHT || y < 0 || y >= EPD_WIDTH) {
+      return;
+    }
+    point_temp = x;
+    x = EPD_WIDTH - y;
+    y = point_temp;
+    pdraw_absolute_pixel(x, y, colored, frame_buffer);
+  } else if (sorientation == ROTATE_180) {
+    if(x < 0 || x >= EPD_WIDTH || y < 0 || y >= EPD_HEIGHT) {
+      return;
+    }
+    x = EPD_WIDTH - x;
+    y = EPD_HEIGHT - y;
+    pdraw_absolute_pixel(x, y, colored, frame_buffer);
+  } else if (sorientation == ROTATE_270) {
+    if(x < 0 || x >= EPD_HEIGHT || y < 0 || y >= EPD_WIDTH) {
+      return;
+    }
+    point_temp = x;
+    x = y;
+    y = EPD_HEIGHT - point_temp;
+    pdraw_absolute_pixel(x, y, colored, frame_buffer);
   }
 }
 
@@ -244,6 +279,21 @@ void pdraw_line(int x0, int y0, int x1, int y1, int colored, unsigned char* fram
   }
 }
 
+void pdraw_vertical_line(int x, int y, int line_height, int colored, unsigned char* frame_buffer){
+  int i;
+  for (i = y; i < y + line_height; i++) {
+    pdraw_pixel(x, i, colored, frame_buffer);
+  }
+}
+
+void pdraw_horizontal_line(int x, int y, int line_width, int colored, unsigned char* frame_buffer){
+  int i;
+  for (i = x; i < x + line_width; i++) {
+    pdraw_pixel(x, i, colored, frame_buffer);
+  }
+
+}
+
 void pdraw_filled_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer){
   int min_x, min_y, max_x, max_y;
   int i;
@@ -257,9 +307,15 @@ void pdraw_filled_rectangle(int x0, int y0, int x1, int y1, int colored, unsigne
   }
 }
 
-void pdraw_vertical_line(int x, int y, int line_height, int colored, unsigned char* frame_buffer){
-  int i;
-  for (i = y; i < y + line_height; i++) {
-    pdraw_pixel(x, i, colored, frame_buffer);
-  }
+void pdraw_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer) {
+  int min_x, min_y, max_x, max_y;
+  min_x = x1 > x0 ? x0 : x1;
+  max_x = x1 > x0 ? x1 : x0;
+  min_y = y1 > y0 ? y0 : y1;
+  max_y = y1 > y0 ? y1 : y0;
+  
+  pdraw_horizontal_line(min_x, min_y, max_x - min_x + 1, colored, frame_buffer);
+  pdraw_horizontal_line(min_x, max_y, max_x - min_x + 1, colored, frame_buffer);
+  pdraw_vertical_line(min_x, min_y, max_y - min_y + 1, colored, frame_buffer);
+  pdraw_vertical_line(max_x, min_y, max_y - min_y + 1, colored, frame_buffer);
 }

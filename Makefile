@@ -7,7 +7,7 @@ include config.mk
 SRC = st.c main.c screen.c font12.c font16.c font20.c font24.c font8.c
 OBJ = $(SRC:.c=.o)
 
-all: options st
+all: options einkshell
 
 options:
 	@echo st build options:
@@ -28,7 +28,7 @@ font.o: font.h
 
 $(OBJ): config.h config.mk
 
-st: $(OBJ)
+einkshell: $(OBJ)
 	$(CC) -o $@ $(OBJ) $(STLDFLAGS)
 
 clean:
