@@ -3,6 +3,7 @@
 #define SCREEN_H
 
 #include "fonts.h"
+#include "st.h"
 
 // Pin definition
 #define RST_PIN                                     17
@@ -101,4 +102,5 @@ void pdraw_vertical_line(int x, int y, int height, int colored, unsigned char* f
 void pdraw_horizontal_line(int x, int y, int width, int colored, unsigned char* frame_buffer);
 void pdraw_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
 void pdraw_filled_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
+void pdraw_term(Line* line, unsigned char* frame_buffer);
 #endif

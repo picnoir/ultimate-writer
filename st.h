@@ -1,3 +1,9 @@
+#ifndef ST_H
+#define ST_H
+
+#include <stddef.h>
+#include <sys/types.h>
+#include <sys/time.h>
 /* See LICENSE for license details. */
 
 /* Arbitrary sizes */
@@ -255,3 +261,4 @@ extern uint forceselmod;
 extern uint selmasks[];
 extern size_t selmaskslen;
 extern char ascii_printable[];
+#endif

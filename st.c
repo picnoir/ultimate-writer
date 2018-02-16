@@ -14,7 +14,6 @@
 #include <sys/ioctl.h>
 #include <sys/select.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <termios.h>
@@ -732,9 +731,10 @@ ttynew(void)
 	}
 
 	/* seems to work fine on linux, openbsd and freebsd */
+  /*
 	if (openpty(&m, &s, NULL, NULL, &w) < 0)
 		die("openpty failed: %s\n", strerror(errno));
-
+*/
 	switch (pid = fork()) {
 	case -1:
 		die("fork failed\n");

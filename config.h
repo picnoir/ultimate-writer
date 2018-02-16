@@ -111,7 +111,7 @@ unsigned int cursorshape = 2;
  * Default columns and rows numbers
  */
 
-unsigned int cols = 80;
+unsigned int cols = 58;
 unsigned int rows = 24;
 
 /*

@@ -9,7 +9,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <libgen.h>
-//#include <X11/Xft/Xft.h>
 #include "arg.h"
 
 #define Glyph Glyph_
@@ -54,24 +53,20 @@ run(void)
     return;
   }
 
-  /* E-ink test */
   unsigned char* frame_buffer = (unsigned char*)malloc(EPD_WIDTH / 8 * EPD_HEIGHT);
-  pclear(UNCOLORED, frame_buffer);
-  pdraw_filled_rectangle(10, 10, 20, 20, COLORED, frame_buffer);
-  pdraw_string_at(100, 10, "It finally works!", &Font16, COLORED, frame_buffer);
-  sdisplay_frame(frame_buffer);
-
 	for (1;;) {
 		FD_ZERO(&rfd);
 		FD_SET(cmdfd, &rfd);
 
 		if (FD_ISSET(cmdfd, &rfd)) {
+      printf("Waiting for input.\n");
 			ttyread();
+      pclear(UNCOLORED, frame_buffer);
+      pdraw_term(term.line, frame_buffer);
+      sdisplay_frame(frame_buffer);
 		}
-
-    // TODO: Display temp ici.
-    printf("%c%c%c\n", term.line[0][0].u, term.line[0][1].u, term.line[0][2].u);
 	}
+  free(frame_buffer);
 }
 
 int

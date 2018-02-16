@@ -1,5 +1,7 @@
 #include "screen.h"
 #include <bcm2835.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 
 int sorientation = ROTATE_0;
@@ -319,3 +321,17 @@ void pdraw_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char*
   pdraw_vertical_line(min_x, min_y, max_y - min_y + 1, colored, frame_buffer);
   pdraw_vertical_line(max_x, min_y, max_y - min_y + 1, colored, frame_buffer);
 }
+
+void pdraw_term(Line* lines, unsigned char* frame_buffer) {
+  int i, j;
+  char* str = (char*)malloc((cols + 10) * sizeof(char));
+  for(i=0; i < rows; i++) {
+    for(j=0; j < cols; j++) {
+      str[j] = lines[i][j].u;
+    }
+    pdraw_string_at(0, i * Font16.Height, str, &Font16, COLORED, frame_buffer);
+    printf("%s\n", str);
+  }
+  free(str);
+}
+
