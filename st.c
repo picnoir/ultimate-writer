@@ -731,10 +731,10 @@ ttynew(void)
 	}
 
 	/* seems to work fine on linux, openbsd and freebsd */
-  /*
+  
 	if (openpty(&m, &s, NULL, NULL, &w) < 0)
 		die("openpty failed: %s\n", strerror(errno));
-*/
+
 	switch (pid = fork()) {
 	case -1:
 		die("fork failed\n");

@@ -334,4 +334,3 @@ void pdraw_term(Line* lines, unsigned char* frame_buffer) {
   }
   free(str);
 }
-

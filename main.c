@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/select.h>
 #include <time.h>
 #include <unistd.h>
@@ -39,6 +40,33 @@ sixd_to_16bit(int x)
 }
 
 void
+wait_stdin_char(char* buff)
+{
+  char inchar;
+  char seq[20] = "\0";
+  inchar = getchar();
+  if(inchar == '<') {
+    int i = 0;
+    while(inchar != '>'){
+      inchar = getchar();
+      seq[i] = inchar;
+      i++;
+    }
+    seq[i-1] = '\0';
+    if (strcmp(seq, "Esc") == 0)
+      buff[0] = 27;
+    else if (strcmp(seq, "BckSp") == 0)
+      buff[0] = 8;
+    else if (strcmp(seq, "Del") == 0)
+      buff[0] = 127;
+    else
+      wait_stdin_char(buff);
+  } else {
+    buff[0] = inchar;
+  }
+}
+
+void
 run(void)
 {
 	int w = win.w, h = win.h;
@@ -46,26 +74,48 @@ run(void)
 	/* Waiting for window mapping */
 
 	ttynew();
+  FILE* hFile;
+  hFile = fopen ("keylogger.log", "r");
+  if (hFile == NULL)
+    return;
+
 
   /* Init E-Ink screen */
-  if (init_if() != 0){
-    printf("e-Paper init failed\n");
-    return;
-  }
+//  if (init_if() != 0){
+//    printf("e-Paper init failed\n");
+//    return;
+//  }
 
   unsigned char* frame_buffer = (unsigned char*)malloc(EPD_WIDTH / 8 * EPD_HEIGHT);
+  char in[2] = "\0";
+  char* str = (char*)malloc((cols + 10) * sizeof(char));
 	for (1;;) {
 		FD_ZERO(&rfd);
 		FD_SET(cmdfd, &rfd);
 
 		if (FD_ISSET(cmdfd, &rfd)) {
-      printf("Waiting for input.\n");
 			ttyread();
-      pclear(UNCOLORED, frame_buffer);
+      //TODO: remove this block to remove console printing.
+      // ======================
+      Line* lines = term.line;
+      for(int i=0; i < rows; i++) {
+        for(int j=0; j < cols; j++) {
+          str[j] = lines[i][j].u;
+        }
+        printf("%s\n", str);
+      }
+      //=======================
+      wait_stdin_char(in);
+      ttywrite(in, 1);
+      //TODO: uncomment that to display on e-ink.
+      //==================
+/*    pclear(UNCOLORED, frame_buffer);
       pdraw_term(term.line, frame_buffer);
-      sdisplay_frame(frame_buffer);
+      sdisplay_frame(frame_buffer);*/
+      //==================
 		}
 	}
+  free(str);
   free(frame_buffer);
 }
 
