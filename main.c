@@ -40,27 +40,64 @@ sixd_to_16bit(int x)
 }
 
 void
-wait_stdin_char(char* buff)
+wait_stdin_char(char* buff, int* len)
 {
   char inchar;
   char seq[20] = "\0";
+  *len = 1;
   inchar = getchar();
   if(inchar == '<') {
-    int i = 0;
-    while(inchar != '>'){
-      inchar = getchar();
-      seq[i] = inchar;
-      i++;
-    }
-    seq[i-1] = '\0';
-    if (strcmp(seq, "Esc") == 0)
-      buff[0] = 27;
-    else if (strcmp(seq, "BckSp") == 0)
-      buff[0] = 8;
-    else if (strcmp(seq, "Del") == 0)
-      buff[0] = 127;
-    else
-      wait_stdin_char(buff);
+      /* This is a special character. It looks like <SpeCas>.
+       * 
+       * 1- Parse SpeCas.
+       * 2- Send the appropriate ascii sequence.
+       *
+       *
+       * Use od -c to find linux escape sequences.
+       */
+      int i = 0;
+      while(inchar != '>'){
+        inchar = getchar();
+        seq[i] = inchar;
+        i++;
+      }
+      seq[i-1] = '\0';
+      if (strcmp(seq, "Esc") == 0)
+        buff[0] = 27;
+      else if (strcmp(seq, "BckSp") == 0){
+        buff[0] = '\b';
+        buff[1] = ' ';
+        buff[2] = '\b';
+        *len = 3;
+      }
+      else if (strcmp(seq, "Del") == 0)
+        buff[0] = 127;
+      else if (strcmp(seq, "Up") == 0) {
+        buff[0] = 33; //ESC
+        buff[1] = 0;
+        buff[2] = 'A';
+        *len = 3;
+      }
+      else if (strcmp(seq, "Down") == 0) {
+        buff[0] = 27; //ESC
+        buff[1] = '[';
+        buff[2] = 'B';
+        *len = 3;
+      }
+      else if (strcmp(seq, "Right") == 0) {
+        buff[0] = 27; //ESC
+        buff[1] = '[';
+        buff[2] = 'C';
+        *len = 3;
+      }
+      else if (strcmp(seq, "Left") == 0) {
+        buff[0] = 27; //ESC
+        buff[1] = '[';
+        buff[2] = 'D';
+        *len = 3;
+      }
+      else
+        wait_stdin_char(buff, len);
   } else {
     buff[0] = inchar;
   }
@@ -74,11 +111,6 @@ run(void)
 	/* Waiting for window mapping */
 
 	ttynew();
-  FILE* hFile;
-  hFile = fopen ("keylogger.log", "r");
-  if (hFile == NULL)
-    return;
-
 
   /* Init E-Ink screen */
 //  if (init_if() != 0){
@@ -87,8 +119,9 @@ run(void)
 //  }
 
   unsigned char* frame_buffer = (unsigned char*)malloc(EPD_WIDTH / 8 * EPD_HEIGHT);
-  char in[2] = "\0";
+  char in[20] = "\0";
   char* str = (char*)malloc((cols + 10) * sizeof(char));
+  int clen = 0;
 	for (1;;) {
 		FD_ZERO(&rfd);
 		FD_SET(cmdfd, &rfd);
@@ -105,8 +138,8 @@ run(void)
         printf("%s\n", str);
       }
       //=======================
-      wait_stdin_char(in);
-      ttywrite(in, 1);
+      wait_stdin_char(in, &clen);
+      ttywrite(in, clen);
       //TODO: uncomment that to display on e-ink.
       //==================
 /*    pclear(UNCOLORED, frame_buffer);

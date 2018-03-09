@@ -144,12 +144,6 @@ typedef struct {
 } TermWindow;
 
 typedef struct {
-	uint b;
-	uint mask;
-	char *s;
-} MouseShortcut;
-
-typedef struct {
 	int mode;
 	int type;
 	int snap;
