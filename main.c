@@ -64,8 +64,10 @@ read_stdin(void* arg)
         i++;
       }
       seq[i-1] = '\0';
-      if (strcmp(seq, "Esc") == 0)
-        strcpy(str, "\027");
+      if (strcmp(seq, "Esc") == 0) {
+        str[0]= 27;
+        str[1]= '\0';
+      }
       else if (strcmp(seq, "BckSp") == 0){
         strcpy(str, "\177");
       }
@@ -79,6 +81,10 @@ read_stdin(void* arg)
         strcpy(str, "\033[C");
       else if (strcmp(seq, "Left") == 0) 
         strcpy(str, "\033[D");
+      else if (strcmp(seq, "End") == 0) 
+        strcpy(str, "\033[F");
+      else if (strcmp(seq, "Home") == 0) 
+        strcpy(str, "\033[H");
       else
         read_stdin(arg);
     } else {
