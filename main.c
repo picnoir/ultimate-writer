@@ -67,19 +67,18 @@ read_stdin(void* arg)
       if (strcmp(seq, "Esc") == 0)
         strcpy(str, "\027");
       else if (strcmp(seq, "BckSp") == 0){
-        printf("\nBackspace.\n");
         strcpy(str, "\177");
       }
       else if (strcmp(seq, "Del") == 0)
         strcpy(str, "\033[3~");
       else if (strcmp(seq, "Up") == 0) 
-        strcpy(str, "\0330A");
+        strcpy(str, "\033[A");
       else if (strcmp(seq, "Down") == 0) 
-        strcpy(str, "\0330B");
+        strcpy(str, "\033[B");
       else if (strcmp(seq, "Right") == 0)
-        strcpy(str, "\0330C");
+        strcpy(str, "\033[C");
       else if (strcmp(seq, "Left") == 0) 
-        strcpy(str, "\0330D");
+        strcpy(str, "\033[D");
       else
         read_stdin(arg);
     } else {
