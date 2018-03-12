@@ -800,8 +800,68 @@ ttyread(void)
 	return ret;
 }
 
+int
+twrite(const char *buf, int buflen, int show_ctrl)
+{
+	int charsize;
+	Rune u;
+	int n;
+
+	for (n = 0; n < buflen; n += charsize) {
+		if (IS_SET(MODE_UTF8) && !IS_SET(MODE_SIXEL)) {
+			/* process a complete utf8 char */
+			charsize = utf8decode(buf + n, &u, buflen - n);
+			if (charsize == 0)
+				break;
+		} else {
+			u = buf[n] & 0xFF;
+			charsize = 1;
+		}
+		if (show_ctrl && ISCONTROL(u)) {
+			if (u & 0x80) {
+				u &= 0x7f;
+				tputc('^');
+				tputc('[');
+			} else if (u != '\n' && u != '\r' && u != '\t') {
+				u ^= 0x40;
+				tputc('^');
+			}
+		}
+		tputc(u);
+	}
+	return n;
+}
+
 void
-ttywrite(const char *s, size_t n)
+ttywrite(const char *s, size_t n, int may_echo)
+{
+	const char *next;
+
+	if (may_echo && IS_SET(MODE_ECHO))
+		twrite(s, n, 1);
+
+	if (!IS_SET(MODE_CRLF)) {
+		ttywriteraw(s, n);
+		return;
+	}
+
+	/* This is similar to how the kernel handles ONLCR for ttys */
+	while (n > 0) {
+		if (*s == '\r') {
+			next = s + 1;
+			ttywriteraw("\r\n", 2);
+		} else {
+			next = memchr(s, '\r', n);
+			DEFAULT(next, s + n);
+			ttywriteraw(s, next - s);
+		}
+		n -= next - s;
+		s = next;
+	}
+}
+
+void
+ttywriteraw(const char *s, size_t n)
 {
 	fd_set wfd, rfd;
 	ssize_t r;
@@ -864,7 +924,7 @@ ttysend(char *s, size_t n)
 	char *t, *lim;
 	Rune u;
 
-	ttywrite(s, n);
+	ttywriteraw(s, n);
 	if (!IS_SET(MODE_ECHO))
 		return;
 
@@ -1585,7 +1645,7 @@ csihandle(void)
 		break;
 	case 'c': /* DA -- Device Attributes */
 		if (csiescseq.arg[0] == 0)
-			ttywrite(vtiden, sizeof(vtiden) - 1);
+			ttywriteraw(vtiden, sizeof(vtiden) - 1);
 		break;
 	case 'C': /* CUF -- Cursor <n> Forward */
 	case 'a': /* HPR -- Cursor <n> Forward */
@@ -1713,7 +1773,7 @@ csihandle(void)
 		if (csiescseq.arg[0] == 6) {
 			len = snprintf(buf, sizeof(buf),"\033[%i;%iR",
 					term.c.y+1, term.c.x+1);
-			ttywrite(buf, len);
+			ttywriteraw(buf, len);
 		}
 		break;
 	case 'r': /* DECSTBM -- Set Scrolling Region */
@@ -2141,7 +2201,7 @@ tcontrolcode(uchar ascii)
 	case 0x99:   /* TODO: SGCI */
 		break;
 	case 0x9a:   /* DECID -- Identify Terminal */
-		ttywrite(vtiden, sizeof(vtiden) - 1);
+		ttywriteraw(vtiden, sizeof(vtiden) - 1);
 		break;
 	case 0x9b:   /* TODO: CSI */
 	case 0x9c:   /* TODO: ST */
@@ -2213,7 +2273,7 @@ eschandle(uchar ascii)
 		}
 		break;
 	case 'Z': /* DECID -- Identify Terminal */
-		ttywrite(vtiden, sizeof(vtiden) - 1);
+		ttywriteraw(vtiden, sizeof(vtiden) - 1);
 		break;
 	case 'c': /* RIS -- Reset to inital state */
 		treset();

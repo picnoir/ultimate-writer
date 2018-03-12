@@ -192,7 +192,8 @@ void ttynew(void);
 size_t ttyread(void);
 void ttyresize(void);
 void ttysend(char *, size_t);
-void ttywrite(const char *, size_t);
+void ttywrite(const char *, size_t, int);
+void ttywriteraw(const char *, size_t);
 
 void resettitle(void);
 

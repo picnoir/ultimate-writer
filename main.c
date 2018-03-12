@@ -10,6 +10,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <pthread.h>
 #include "arg.h"
 
 #define Glyph Glyph_
@@ -39,12 +40,13 @@ sixd_to_16bit(int x)
 	return x == 0 ? 0 : 0x3737 + 0x2828 * x;
 }
 
-void
-wait_stdin_char(char* buff, int* len)
+void* 
+read_stdin(void* arg)
 {
-  char inchar;
+  char str[20] = "\0";
   char seq[20] = "\0";
-  *len = 1;
+  char inchar;
+  for(;;){
   inchar = getchar();
   if(inchar == '<') {
       /* This is a special character. It looks like <SpeCas>.
@@ -63,43 +65,28 @@ wait_stdin_char(char* buff, int* len)
       }
       seq[i-1] = '\0';
       if (strcmp(seq, "Esc") == 0)
-        buff[0] = 27;
+        strcpy(str, "\027");
       else if (strcmp(seq, "BckSp") == 0){
-        buff[0] = '\b';
-        buff[1] = ' ';
-        buff[2] = '\b';
-        *len = 3;
+        printf("\nBackspace.\n");
+        strcpy(str, "\177");
       }
       else if (strcmp(seq, "Del") == 0)
-        buff[0] = 127;
-      else if (strcmp(seq, "Up") == 0) {
-        buff[0] = 33; //ESC
-        buff[1] = 0;
-        buff[2] = 'A';
-        *len = 3;
-      }
-      else if (strcmp(seq, "Down") == 0) {
-        buff[0] = 27; //ESC
-        buff[1] = '[';
-        buff[2] = 'B';
-        *len = 3;
-      }
-      else if (strcmp(seq, "Right") == 0) {
-        buff[0] = 27; //ESC
-        buff[1] = '[';
-        buff[2] = 'C';
-        *len = 3;
-      }
-      else if (strcmp(seq, "Left") == 0) {
-        buff[0] = 27; //ESC
-        buff[1] = '[';
-        buff[2] = 'D';
-        *len = 3;
-      }
+        strcpy(str, "\033[3~");
+      else if (strcmp(seq, "Up") == 0) 
+        strcpy(str, "\0330A");
+      else if (strcmp(seq, "Down") == 0) 
+        strcpy(str, "\0330B");
+      else if (strcmp(seq, "Right") == 0)
+        strcpy(str, "\0330C");
+      else if (strcmp(seq, "Left") == 0) 
+        strcpy(str, "\0330D");
       else
-        wait_stdin_char(buff, len);
-  } else {
-    buff[0] = inchar;
+        read_stdin(arg);
+    } else {
+      str[0] = inchar;
+      str[1] = '\0';
+  }
+  ttywrite(str, strlen(str), 1);
   }
 }
 
@@ -107,10 +94,12 @@ void
 run(void)
 {
 	int w = win.w, h = win.h;
+  pthread_t input_thread;
 	fd_set rfd;
-	/* Waiting for window mapping */
-
 	ttynew();
+  ttyread();
+  pthread_create(&input_thread, NULL, read_stdin, NULL);
+
 
   /* Init E-Ink screen */
 //  if (init_if() != 0){
@@ -121,7 +110,6 @@ run(void)
   unsigned char* frame_buffer = (unsigned char*)malloc(EPD_WIDTH / 8 * EPD_HEIGHT);
   char in[20] = "\0";
   char* str = (char*)malloc((cols + 10) * sizeof(char));
-  int clen = 0;
 	for (1;;) {
 		FD_ZERO(&rfd);
 		FD_SET(cmdfd, &rfd);
@@ -138,8 +126,6 @@ run(void)
         printf("%s\n", str);
       }
       //=======================
-      wait_stdin_char(in, &clen);
-      ttywrite(in, clen);
       //TODO: uncomment that to display on e-ink.
       //==================
 /*    pclear(UNCOLORED, frame_buffer);
