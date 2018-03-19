@@ -121,8 +121,9 @@ run(void)
 
 		if (FD_ISSET(cmdfd, &rfd)) {
 			ttyread();
-      //TODO: remove this block to remove console printing.
+      // Remove this block to remove console printing.
       // ======================
+      /*
       Line* lines = term.line;
       for(int i=0; i < rows; i++) {
         for(int j=0; j < cols; j++) {
@@ -130,12 +131,13 @@ run(void)
         }
         printf("%s\n", str);
       }
+      */
       //=======================
-      //TODO: uncomment that to display on e-ink.
+      // Uncomment that to display on e-ink.
       //==================
-/*    pclear(UNCOLORED, frame_buffer);
+      pclear(UNCOLORED, frame_buffer);
       pdraw_term(term.line, frame_buffer);
-      sdisplay_frame(frame_buffer);*/
+      sdisplay_frame(frame_buffer);
       //==================
 		}
 	}
