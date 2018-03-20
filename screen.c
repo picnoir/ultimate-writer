@@ -10,14 +10,16 @@ int sorientation = ROTATE_0;
 //==========================
 int init_if(void){
   if(!bcm2835_init()) {
-    return -1;
+    printf("Cannot init BCM2835. Is the kernel module installed?\n");
+    exit(-1);
   }
   bcm2835_gpio_fsel(RST_PIN, BCM2835_GPIO_FSEL_OUTP);
   bcm2835_gpio_fsel(DC_PIN, BCM2835_GPIO_FSEL_OUTP);
   bcm2835_gpio_fsel(BUSY_PIN, BCM2835_GPIO_FSEL_INPT);
 
   if(!bcm2835_spi_begin()){                                         //Start spi interface, set spi pin for the reuse function
-    return -1;
+    printf("Cannot init SPI interface. Is it activated in raspi-config?\n");
+    exit(-1);
   }
   bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);     //High first transmission
   bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);                  //spi mode 0
@@ -54,7 +56,7 @@ void spi_transfer(unsigned char data) {
 // data payload means.
 int sinit(void) {
   if(init_if() != 0){
-    return -1;
+    exit(-1);
   }
   sreset();
 
@@ -105,6 +107,7 @@ void sreset(void){
   digital_write(RST_PIN, LOW);
   delay_ms(200);
   digital_write(RST_PIN, HIGH);
+  delay_ms(200);
 }
 
 void ssend_command(unsigned char command){
@@ -330,7 +333,6 @@ void pdraw_term(Line* lines, unsigned char* frame_buffer) {
       str[j] = lines[i][j].u;
     }
     pdraw_string_at(0, i * Font16.Height, str, &Font16, COLORED, frame_buffer);
-    printf("%s\n", str);
   }
   free(str);
 }

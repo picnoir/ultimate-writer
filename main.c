@@ -19,15 +19,6 @@
 #include "screen.h"
 #include "st.h"
 
-/* XEMBED messages */
-#define XEMBED_FOCUS_IN  4
-#define XEMBED_FOCUS_OUT 5
-
-/* macros */
-#define TRUERED(x)		(((x) & 0xff0000) >> 8)
-#define TRUEGREEN(x)		(((x) & 0xff00))
-#define TRUEBLUE(x)		(((x) & 0xff) << 8)
-
 static inline ushort sixd_to_16bit(int);
 
 
@@ -107,7 +98,7 @@ run(void)
 
 
   /* Init E-Ink screen */
-  if (init_if() != 0){
+  if (sinit() != 0){
     printf("e-Paper init failed\n");
     return;
   }
