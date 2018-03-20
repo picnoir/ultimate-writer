@@ -1,0 +1,3 @@
+#!/bin/sh
+/usr/local/bin/logkeys --kill
+rm -f /tmp/keylogger.log

@@ -1,7 +1,11 @@
 [Unit]
-Description="Writer pi screen driver service"
+Description="Writer pi e-ink screen driver"
+
 [Service]
 Type=simple
-ExecStartPre=touch /tmp/keylogger.log && logkeys --start --output /tmp/keylogger.log --no-timestamps
-ExecStart=tail -f /tmp/keylogger.log | /usr/bin/writerpi
-ExecStopPost=logkeys --kill && rm /tmp/keylogger.log
+User=root
+ExecStart=/usr/local/bin/start-writerpi
+ExecStop=/usr/local/bin/stop-writerpi
+
+[Install]
+WantedBy=multi-user.target

