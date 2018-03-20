@@ -1,5 +1,5 @@
-# st version
-VERSION = 0.0
+# writerpi version
+VERSION = 0.1
 
 # Customize below to fit your system
 

@@ -1,0 +1,7 @@
+[Unit]
+Description="Writer pi screen driver service"
+[Service]
+Type=simple
+ExecStartPre=touch /tmp/keylogger.log && logkeys --start --output /tmp/keylogger.log --no-timestamps
+ExecStart=tail -f /tmp/keylogger.log | /usr/bin/writerpi
+ExecStopPost=logkeys --kill && rm /tmp/keylogger.log

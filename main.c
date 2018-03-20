@@ -107,10 +107,10 @@ run(void)
 
 
   /* Init E-Ink screen */
-//  if (init_if() != 0){
-//    printf("e-Paper init failed\n");
-//    return;
-//  }
+  if (init_if() != 0){
+    printf("e-Paper init failed\n");
+    return;
+  }
 
   unsigned char* frame_buffer = (unsigned char*)malloc(EPD_WIDTH / 8 * EPD_HEIGHT);
   char in[20] = "\0";
