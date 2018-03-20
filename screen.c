@@ -47,13 +47,14 @@ void spi_transfer(unsigned char data) {
 
 // Eink driver functions
 //
-// Note: this custom driver has been greatly inspired by waveshare's
-// epd7in5 driver. 
-// This may not properly on smaller screens... I have actually no clue.
+// Note: despite being greatly inspired by waveshare's stock firmwire, this
+// initiation phase has been quite modified. See IL0373 datasheet for more infos
+// <https://www.smart-prototyping.com/image/data/9_Modules/EinkDisplay/GDEW0154T8/IL0373.pdf>
+//
+// This init phase has been optimized for the 7.2 inches screen. You'll need to tweak some commands
+// to properly handle another screen. (The init phase has been commented out for more clarity).
 //=====================
 
-// This function has been extracted from the epd7in5.cpp file. No clue what the
-// data payload means.
 int sinit(void) {
   if(init_if() != 0){
     exit(-1);
@@ -61,14 +62,29 @@ int sinit(void) {
   sreset();
 
   ssend_command(POWER_SETTING); 
-  ssend_data(0x37);
+  /* 
+   * Internal VDS_EN and VDG_EN.
+   * VCOMH=VDH+VCOMDC, VGH=16V, VGL= -16V.
+   * */
+  ssend_data(0x37); 
   ssend_data(0x00);
 
   ssend_data(PANEL_SETTING);
-  ssend_data(0xCF);
-  ssend_data(0x08);
+  /* 160x296, LUTs from OTP, black/white/red, 
+   * scan up, shift right, booster on */
+  ssend_data(0xCF); 
   
   ssend_command(BOOSTER_SOFT_START);
+  /*
+   * The datasheet seems incorrect for this section.
+   * Probably better to leave it as it was in wavshare's 
+   * firmware.
+   *
+   * Phase A: Soft start period: 40ms, strength 1.
+   * Minimum OFF time setting of GDR in phase A: 6.58uS.
+   * Soft start period of phase B: 40ms, strength 2.
+   * Minimum OFF time setting of GDR in phase B: 0.80uS.
+   */
   ssend_data(0xc7);     
   ssend_data(0xcc);
   ssend_data(0x28);
@@ -77,27 +93,49 @@ int sinit(void) {
   swait_until_idle();
 
   ssend_command(PLL_CONTROL);
+  /*
+   * PLL clock: 50Hz.
+   */
   ssend_data(0x3c);        
 
   ssend_command(TEMPERATURE_CALIBRATION);
+  /*
+   * Internal temperature sensor value.
+   */
   ssend_data(0x00);
 
   ssend_command(VCOM_AND_DATA_INTERVAL_SETTING);
+  /*
+   * Vcom and data interval: 10 hsync (VBDW).
+   */
   ssend_data(0x77);
 
-  ssend_command(TCON_SETTING);
+  ssend_command(RESOLUTION_SETTING);
+  /*
+   * 12 periods.
+   */
   ssend_data(0x22);
 
-  ssend_command(TCON_RESOLUTION);
-  ssend_data(0x02);     //source 640
+  ssend_command(RESOLUTION_SETTING);
+  /*
+   * Horizontal res: 640
+   * Vertical res: 384
+   */
+  ssend_data(0x02);
   ssend_data(0x80);
-  ssend_data(0x01);     //gate 384
+  ssend_data(0x01);
   ssend_data(0x80);
 
   ssend_command(VCM_DC_SETTING);
-  ssend_data(0x1E);      //decide by LUT file
+  /*
+   * VCOM DC value.
+   */
+  ssend_data(0x1E);
 
-  ssend_command(0xe5);   //FLASH MODE            
+  ssend_command(TSSET);
+  /*
+   * Force set temperature for cascade.
+   */
   ssend_data(0x03);  
 
   return 0;

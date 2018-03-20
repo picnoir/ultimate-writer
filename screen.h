@@ -50,13 +50,14 @@
 #define VCOM_AND_DATA_INTERVAL_SETTING              0x50
 #define LOW_POWER_DETECTION                         0x51
 #define TCON_SETTING                                0x60
-#define TCON_RESOLUTION                             0x61
+#define RESOLUTION_SETTING                          0x61
 #define SPI_FLASH_CONTROL                           0x65
 #define REVISION                                    0x70
 #define GET_STATUS                                  0x71
 #define AUTO_MEASUREMENT_VCOM                       0x80
 #define READ_VCOM_VALUE                             0x81
 #define VCM_DC_SETTING                              0x82
+#define TSSET                                       0xe5
 
 // Display orientation
 #define ROTATE_0                                    0
