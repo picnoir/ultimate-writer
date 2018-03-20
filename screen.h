@@ -33,10 +33,10 @@
 #define DISPLAY_REFRESH                             0x12
 #define IMAGE_PROCESS                               0x13
 #define LUT_FOR_VCOM                                0x20 
-#define LUT_BLUE                                    0x21
-#define LUT_WHITE                                   0x22
-#define LUT_GRAY_1                                  0x23
-#define LUT_GRAY_2                                  0x24
+#define LUT_WHITE_TO_WHITE                          0x21
+#define LUT_BLACK_TO_WHITE                          0x22
+#define LUT_WHITE_TO_BLACK                          0x23
+#define LUT_BLACK_TO_BLACK                          0x24
 #define LUT_RED_0                                   0x25
 #define LUT_RED_1                                   0x26
 #define LUT_RED_2                                   0x27
@@ -92,6 +92,8 @@ void ssend_data(unsigned char data);
 void sdisplay_frame(const unsigned char* frame_buffer);
 void swait_until_idle(void);
 void ssleep(void);
+void set_lut(void);
+void set_fast_lut(void);
 // Framebuffer painting functions.
 void pclear(int colored, unsigned char* frame_buffer);
 void pdraw_absolute_pixel(int x, int y, int colored, unsigned char* frame_buffer);
@@ -104,4 +106,16 @@ void pdraw_horizontal_line(int x, int y, int width, int colored, unsigned char* 
 void pdraw_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
 void pdraw_filled_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
 void pdraw_term(Line* line, unsigned char* frame_buffer);
+// LUTs
+extern const unsigned char lut_vcom0[];
+extern const unsigned char lut_ww[];
+extern const unsigned char lut_bw[];
+extern const unsigned char lut_bb[];
+extern const unsigned char lut_wb[];
+
+extern const unsigned char lut_vcom0_fast[];
+extern const unsigned char lut_ww_fast[];
+extern const unsigned char lut_bw_fast[];
+extern const unsigned char lut_bb_fast[];
+extern const unsigned char lut_wb_fast[];
 #endif
