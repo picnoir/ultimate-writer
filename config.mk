@@ -5,7 +5,7 @@ VERSION = 0.1
 
 # paths
 PREFIX = /usr/local
-MANPREFIX = $(PREFIX)/share/man
+SYSTEMD_PREFIX = /lib/systemd/system
 
 LIBS = -L -lm -lutil -lpthread -lbcm2835
 
