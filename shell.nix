@@ -1,6 +1,6 @@
 with import <nixpkgs> {}; {
-  ExHack = stdenv.mkDerivation {
-    name = "ExHack";
+  WriterPi = stdenv.mkDerivation {
+    name = "Writer Pi";
     buildInputs = [ gcc gnumake logkeys ];
   };
 }
