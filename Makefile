@@ -32,9 +32,9 @@ clean:
 
 install: writerpi
 	cp -f writerpi $(PREFIX)/bin
-	cp -f start-writerpi $(PREFIX)/bin
-	cp -f stop-writerpi $(PREFIX)/bin
-	cp -f writerpi.service $(SYSTEMD_PREFIX)
+	cp -f scripts/start-writerpi $(PREFIX)/bin
+	cp -f scripts/stop-writerpi $(PREFIX)/bin
+	cp -f systemd/writerpi.service $(SYSTEMD_PREFIX)
 	chmod 755 $(PREFIX)/bin/writerpi
 	chmod 755 $(PREFIX)/bin/start-writerpi
 	chmod 755 $(PREFIX)/bin/stop-writerpi
