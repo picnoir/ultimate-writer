@@ -1,6 +1,6 @@
 with import <nixpkgs> {}; {
   WriterPi = stdenv.mkDerivation {
-    name = "Writer Pi";
+    name = "WriterPi";
     buildInputs = [ gcc gnumake logkeys ];
   };
 }
