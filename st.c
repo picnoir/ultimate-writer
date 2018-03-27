@@ -1,4 +1,7 @@
-/* See LICENSE for license details. */
+/*
+ * Modified version of Suckless's st <https://st.suckless.org/>
+ */
+
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>

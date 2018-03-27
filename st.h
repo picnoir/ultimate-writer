@@ -1,3 +1,6 @@
+/*
+ * Modified version of Suckless's st <https://st.suckless.org/>
+ */
 #ifndef ST_H
 #define ST_H
 
