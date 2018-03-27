@@ -7,11 +7,11 @@ Ultimate writer is an attempt to create the perfect digital writing device; it m
 
 It was built upon the following principles: 
 
-- Easily readable e-ink screen. You can read it effortlessly even in sunlight.
-- Long lasting battery life. You can have a 3 days writing retreat (~20 hours) without recharging it.
-- Easily serviceable design. Your typewriter is 40 years old and works just fine. You don't want to change your writing device every 5 years. You want to be able to easily change the computer parts easily; and who knows, use something else than a raspberry pi.
-- Standard OS. You want to use your favorite console-based text editor. You also want a shell access to tweak your setup without reprogramming the device.
-- Nice full-size mechanical keyboard.
+- **Easily readable e-ink screen**. You can read it effortlessly even in sunlight.
+- **Long lasting battery life**. You can have a 3 days writing retreat (~20 hours) without recharging it.
+- **Easily serviceable design**. Your typewriter is 40 years old and works just fine. You don't want to change your writing device every 5 years. You want to be able to easily change the computer parts easily; and who knows, use something else than a raspberry pi.
+- **Standard OS**. You want to use your favorite console-based text editor. You also want a shell access to tweak your setup without reprogramming the device.
+- **Nice full-size mechanical keyboard**.
 
 My ultimate writing device is probably not your ultimate writing device. However, I think we can share a common codebase. 
 
