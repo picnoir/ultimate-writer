@@ -6,7 +6,7 @@ include config.mk
 SRC = st.c screen.c main.c font12.c font16.c font20.c font24.c font8.c
 OBJ = $(SRC:.c=.o)
 
-all: options writerpi 
+all: options ultimatewriter
 
 options:
 	@echo st build options:
@@ -24,25 +24,25 @@ font.o: font.h
 
 $(OBJ): config.h config.mk
 
-writerpi: $(OBJ)
+ultimatewriter: $(OBJ)
 	$(CC) -o $@ $(OBJ) $(STLDFLAGS)
 
 clean:
 	rm -f st $(OBJ)
 
-install: writerpi
-	cp -f writerpi $(PREFIX)/bin
-	cp -f scripts/start-writerpi $(PREFIX)/bin
-	cp -f scripts/stop-writerpi $(PREFIX)/bin
-	cp -f systemd/writerpi.service $(SYSTEMD_PREFIX)
-	chmod 755 $(PREFIX)/bin/writerpi
-	chmod 755 $(PREFIX)/bin/start-writerpi
-	chmod 755 $(PREFIX)/bin/stop-writerpi
+install: ultimatewriter
+	cp -f ultimatewriter $(PREFIX)/bin
+	cp -f scripts/start-ultimatewriter $(PREFIX)/bin
+	cp -f scripts/stop-ultimatewriter $(PREFIX)/bin
+	cp -f systemd/ultimatewriter.service $(SYSTEMD_PREFIX)
+	chmod 755 $(PREFIX)/bin/ultimatewriter
+	chmod 755 $(PREFIX)/bin/start-ultimatewriter
+	chmod 755 $(PREFIX)/bin/stop-ultimatewriter
 
 uninstall:
-	rm -f $(PREFIX)/bin/writerpi
-	rm -f $(PREFIX)/bin/start-writerpi
-	rm -f $(PREFIX)/bin/stop-writerpi
-	rm -f $(SYSTEMD_PREFIX)/writerpi.service
+	rm -f $(PREFIX)/bin/ultimatewriter
+	rm -f $(PREFIX)/bin/start-ultimatewriter
+	rm -f $(PREFIX)/bin/stop-ultimatewriter
+	rm -f $(SYSTEMD_PREFIX)/ultimatewriter.service
 
 .PHONY: all options clean dist install uninstall

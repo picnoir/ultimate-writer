@@ -1,0 +1,11 @@
+[Unit]
+Description="Ultimate writer e-ink screen driver"
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/start-ultimatewriter
+ExecStop=/usr/local/bin/stop-ultimatewriter
+
+[Install]
+WantedBy=multi-user.target
