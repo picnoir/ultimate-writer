@@ -5,7 +5,7 @@ Ultimate Writer
 
 Ultimate writer is an attempt to create the perfect digital writing device; it may also be a clickbaity name, who knows.
 
-It was build upon the following principles: 
+It was built upon the following principles: 
 
 - Easily readable e-ink screen. I can easily read it without eye strain, even in hard sun conditions.
 - Long lasting battery life. I can have a 3 days writing retreat (~20 hours) without recharging it.
@@ -73,11 +73,13 @@ Open an issue on this GitHub repo.
 
 ## Contributing
 
-Contributions are more than welcome. If you build one of these, it'll make me very happy to see your finished work, send me an e-mail :) If enough people build this kind of computer, we'll create a website listing the various case designs.
+Contributions are more than welcome.
+
+If you build one of these, it'll make me very happy to see your finished work, send me an e-mail :) If enough people build this kind of computer, we'll create a website listing the various case designs.
 
 In order to contribute:
 
-1. Open a github issue.
+1. Open a GitHub issue.
 1. Fork the project.
 1. Send a PR to this repo's master branch.
 
