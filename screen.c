@@ -54,8 +54,19 @@ void spi_transfer(unsigned char data) {
 // This init phase has been optimized for the 7.2 inches screen. You'll need to tweak some commands
 // to properly handle another screen. (The init phase has been commented out for more clarity).
 //=====================
-
 int sinit(void) {
+  switch(screen_type) {
+    case GOODDISPLAY75 :
+      return init_waveshare_75();
+    case GOODDISPLAY42 :
+      return init_waveshare_42();
+  }
+}
+
+int init_waveshare_42(void) {
+  return(1);
+}
+int init_waveshare_75(void) {
   if(init_if() != 0){
     exit(-1);
   }
@@ -159,6 +170,21 @@ void ssend_data(unsigned char data){
 }
 
 void sdisplay_frame(const unsigned char* frame_buffer){
+  switch(screen_type){
+    GOODDISPLAY75:
+      sdisplay_frame_75(frame_buffer);
+      break;
+    GOODDISPLAY42:
+      sdisplay_frame_42(frame_buffer);
+      break;
+  }
+}
+
+void sdisplay_frame_42(const unsigned char* frame_buffer){
+  return;
+}
+
+void sdisplay_frame_75(const unsigned char* frame_buffer){
   unsigned char temp1, temp2;
   ssend_command(DATA_START_TRANSMISSION_1);
   for(int i = 0; i < 30720; i++) {   
@@ -183,6 +209,22 @@ void sdisplay_frame(const unsigned char* frame_buffer){
   ssend_command(DISPLAY_REFRESH);
   delay_ms(100);
   swait_until_idle();
+}
+
+void sdisplay_frame_fast(const unsigned char* frame_buffer) {
+  switch(screen_type){
+    GOODDISPLAY75:
+      // No fast refresh for you :(
+      sdisplay_frame_75(frame_buffer);
+      break;
+    GOODDISPLAY42:
+      sdisplay_frame_fast_42(frame_buffer);
+      break;
+  }
+}
+
+void sdisplay_frame_fast_42(const unsigned char* frame_buffer){
+  return;
 }
 
 void swait_until_idle(void) {

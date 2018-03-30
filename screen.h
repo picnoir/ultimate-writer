@@ -74,6 +74,7 @@
 // Dirty hack. We don't need this 
 // struct. TODO clean this.
 typedef int GlyphFontSpec;
+typedef enum {GOODDISPLAY75, GOODDISPLAY42} screen_type_t;
 
 void run(void);
 
@@ -86,10 +87,16 @@ void delay_ms(unsigned int delayTime);
 void spi_transfer(unsigned char data);
 // Screen driver functions.
 int sinit(void);
+int init_waveshare_75(void);
+int init_waveshare_42(void);
 void sreset(void);
 void ssend_command(unsigned char command);
 void ssend_data(unsigned char data);
 void sdisplay_frame(const unsigned char* frame_buffer);
+void sdisplay_frame_75(const unsigned char* frame_buffer);
+void sdisplay_frame_42(const unsigned char* frame_buffer);
+void sdisplay_frame_fast(const unsigned char* frame_buffer);
+void sdisplay_frame_fast_42(const unsigned char* frame_buffer);
 void swait_until_idle(void);
 void ssleep(void);
 void set_lut(void);

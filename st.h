@@ -251,6 +251,7 @@ extern unsigned int defaultcs;
 extern unsigned int defaultrcs;
 extern unsigned int cursorshape;
 extern unsigned int cols;
+extern unsigned int screen_type;
 extern unsigned int rows;
 extern unsigned int defaultattr;
 extern size_t mshortcutslen;

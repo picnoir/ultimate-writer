@@ -121,9 +121,12 @@ unsigned int rows = 24;
 unsigned int defaultattr = 11;
 
 /*
- * Internal mouse shortcuts.
- * Beware that overloading Button1 will disable the selection.
+ * Screen installed on the typewriter.
+ *
+ * GOODDISPLAY75 for waveshare/good display 7.5" screen.
+ * GOODDISPLAY42 for waveshare/good display 4.2" screen.
  */
+unsigned int screen_type = GOODDISPLAY75;
 
 /*
  * Printable characters in ASCII, used to estimate the advance width
