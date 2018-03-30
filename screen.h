@@ -31,7 +31,7 @@
 #define DATA_START_TRANSMISSION_1                   0x10
 #define DATA_STOP                                   0x11
 #define DISPLAY_REFRESH                             0x12
-#define IMAGE_PROCESS                               0x13
+#define DATA_START_TRANSMISSION_2                   0x13
 #define LUT_FOR_VCOM                                0x20 
 #define LUT_WHITE_TO_WHITE                          0x21
 #define LUT_BLACK_TO_WHITE                          0x22
@@ -100,7 +100,9 @@ void sdisplay_frame_fast_42(const unsigned char* frame_buffer);
 void swait_until_idle(void);
 void ssleep(void);
 void set_lut(void);
+void set_lut_42(void);
 void set_fast_lut(void);
+void set_fast_lut_42(void);
 // Framebuffer painting functions.
 void pclear(int colored, unsigned char* frame_buffer);
 void pdraw_absolute_pixel(int x, int y, int colored, unsigned char* frame_buffer);
@@ -114,15 +116,15 @@ void pdraw_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char*
 void pdraw_filled_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
 void pdraw_term(Line* line, unsigned char* frame_buffer);
 // LUTs
-extern const unsigned char lut_vcom0[];
-extern const unsigned char lut_ww[];
-extern const unsigned char lut_bw[];
-extern const unsigned char lut_bb[];
-extern const unsigned char lut_wb[];
+extern const unsigned char lut_vcom0_42[];
+extern const unsigned char lut_ww_42[];
+extern const unsigned char lut_bw_42[];
+extern const unsigned char lut_bb_42[];
+extern const unsigned char lut_wb_42[];
 
-extern const unsigned char lut_vcom0_fast[];
-extern const unsigned char lut_ww_fast[];
-extern const unsigned char lut_bw_fast[];
-extern const unsigned char lut_bb_fast[];
-extern const unsigned char lut_wb_fast[];
+extern const unsigned char lut_vcom0_fast_42[];
+extern const unsigned char lut_ww_fast_42[];
+extern const unsigned char lut_bw_fast_42[];
+extern const unsigned char lut_bb_fast_42[];
+extern const unsigned char lut_wb_fast_42[];
 #endif

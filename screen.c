@@ -63,9 +63,6 @@ int sinit(void) {
   }
 }
 
-int init_waveshare_42(void) {
-  return(1);
-}
 int init_waveshare_75(void) {
   if(init_if() != 0){
     exit(-1);
@@ -152,6 +149,37 @@ int init_waveshare_75(void) {
   return 0;
 }
 
+int init_waveshare_42(void) {
+  if (init_if() != 0) {
+    exit(-1);
+  }
+  sreset();
+  ssend_command(POWER_SETTING);
+  ssend_data(0x03);                  // VDS_EN, VDG_EN
+  ssend_data(0x00);                  // VCOM_HV, VGHL_LV[1], VGHL_LV[0]
+  ssend_data(0x2b);                  // VDH
+  ssend_data(0x2b);                  // VDL
+  ssend_data(0xff);                  // VDHR
+  ssend_command(BOOSTER_SOFT_START);
+  ssend_data(0x17);
+  ssend_data(0x17);
+  ssend_data(0x17);                  //07 0f 17 1f 27 2F 37 2f
+  ssend_command(POWER_ON);
+  swait_until_idle();
+  ssend_command(PANEL_SETTING);
+//  ssend_data(0xbf);    // KW-BF   KWR-AF  BWROTP 0f
+//  ssend_data(0x0b);
+//	ssend_data(0x0F);  //300x400 Red mode, LUT from OTP
+//	ssend_data(0x1F);  //300x400 B/W mode, LUT from OTP
+  ssend_data(0x3F); //300x400 B/W mode, LUT set by register
+//	ssend_data(0x2F); //300x400 Red mode, LUT set by register
+
+  ssend_command(PLL_CONTROL);
+  ssend_data(0x3C);        // 3A 100Hz   29 150Hz   39 200Hz    31 171Hz       3C 50Hz (default)    0B 10Hz
+//  ssend_data(0x0B);   //0B is 10Hz
+  return 0;
+}
+
 void sreset(void){
   digital_write(RST_PIN, LOW);
   delay_ms(200);
@@ -181,7 +209,36 @@ void sdisplay_frame(const unsigned char* frame_buffer){
 }
 
 void sdisplay_frame_42(const unsigned char* frame_buffer){
-  return;
+  unsigned int width = 400, height = 300;
+  ssend_command(RESOLUTION_SETTING);
+  ssend_data(width >> 8);        
+  ssend_data(width & 0xff);
+  ssend_data(height >> 8);
+  ssend_data(height & 0xff);
+
+  ssend_command(VCM_DC_SETTING);
+  ssend_data(0x12);                   
+
+  ssend_command(VCOM_AND_DATA_INTERVAL_SETTING);
+  ssend_command(0x97);    //VBDF 17|D7 VBDW 97  VBDB 57  VBDF F7  VBDW 77  VBDB 37  VBDR B7
+
+  if (frame_buffer != NULL) {
+      ssend_command(DATA_START_TRANSMISSION_1);
+      for(int i = 0; i < width / 8 * height; i++) {
+          ssend_data(0xFF);      // bit set: white, bit reset: black
+      }
+      delay_ms(2);
+      ssend_command(DATA_START_TRANSMISSION_2); 
+      for(int i = 0; i < width / 8 * height; i++) {
+          ssend_data(frame_buffer[i]);
+      }  
+      delay_ms(2);                  
+  }
+
+  set_lut();
+  ssend_command(DISPLAY_REFRESH); 
+  delay_ms(100);
+  swait_until_idle();
 }
 
 void sdisplay_frame_75(const unsigned char* frame_buffer){
@@ -224,6 +281,35 @@ void sdisplay_frame_fast(const unsigned char* frame_buffer) {
 }
 
 void sdisplay_frame_fast_42(const unsigned char* frame_buffer){
+  unsigned int width = 400, height = 300;
+  ssend_command(RESOLUTION_SETTING);
+  ssend_data(width >> 8);        
+  ssend_data(width & 0xff);
+  ssend_data(height >> 8);
+  ssend_data(height & 0xff);
+
+  ssend_command(VCM_DC_SETTING);
+  ssend_data(0x12);                   
+
+  ssend_command(VCOM_AND_DATA_INTERVAL_SETTING);
+  ssend_command(0x97);    //VBDF 17|D7 VBDW 97  VBDB 57  VBDF F7  VBDW 77  VBDB 37  VBDR B7
+
+  if (frame_buffer != NULL) {
+      ssend_command(DATA_START_TRANSMISSION_1);
+      for(int i = 0; i < width / 8 * height; i++) {
+          ssend_data(0xFF);      // bit set: white, bit reset: black
+      }
+      delay_ms(2);
+      ssend_command(DATA_START_TRANSMISSION_2); 
+      for(int i = 0; i < width / 8 * height; i++) {
+          ssend_data(frame_buffer[i]);
+      }  
+      delay_ms(2);                  
+  }
+
+  set_fast_lut();
+  ssend_command(DISPLAY_REFRESH); 
+  swait_until_idle();
   return;
 }
 
@@ -421,30 +507,41 @@ void pdraw_term(Line* lines, unsigned char* frame_buffer) {
  * LUTs-related code
  */
 void set_lut(void) {
+  switch(screen_type) {
+    case GOODDISPLAY75:
+      // No LUTs for you :(
+      break;
+    case GOODDISPLAY42:
+      set_lut_42();
+      break;
+  }
+}
+
+void set_lut_42(void) {
   unsigned int count;     
   ssend_command(LUT_FOR_VCOM);
   for(count = 0; count < 44; count++) {
-    ssend_data(lut_vcom0[count]);
+    ssend_data(lut_vcom0_42[count]);
   }
   
   ssend_command(LUT_WHITE_TO_WHITE);
   for(count = 0; count < 42; count++) {
-    ssend_data(lut_ww[count]);
+    ssend_data(lut_ww_42[count]);
   }   
   
   ssend_command(LUT_BLACK_TO_WHITE);
   for(count = 0; count < 42; count++) {
-    ssend_data(lut_bw[count]);
+    ssend_data(lut_bw_42[count]);
   } 
 
   ssend_command(LUT_WHITE_TO_BLACK);
   for(count = 0; count < 42; count++) {
-    ssend_data(lut_wb[count]);
+    ssend_data(lut_wb_42[count]);
   } 
 
   ssend_command(LUT_BLACK_TO_BLACK);
   for(count = 0; count < 42; count++) {
-    ssend_data(lut_bb[count]);
+    ssend_data(lut_bb_42[count]);
   } 
 }
 
@@ -452,33 +549,33 @@ void set_fast_lut(void) {
   unsigned int count;     
   ssend_command(LUT_FOR_VCOM);
   for(count = 0; count < 44; count++) {
-    ssend_data(lut_vcom0_fast[count]);
+    ssend_data(lut_vcom0_fast_42[count]);
   }
   
   ssend_command(LUT_WHITE_TO_WHITE);
   for(count = 0; count < 42; count++) {
-    ssend_data(lut_ww_fast[count]);
+    ssend_data(lut_ww_fast_42[count]);
   }   
   
   ssend_command(LUT_BLACK_TO_WHITE);
   for(count = 0; count < 42; count++) {
-    ssend_data(lut_bw_fast[count]);
+    ssend_data(lut_bw_fast_42[count]);
   } 
 
   ssend_command(LUT_WHITE_TO_BLACK);
   for(count = 0; count < 42; count++) {
-    ssend_data(lut_wb_fast[count]);
+    ssend_data(lut_wb_fast_42[count]);
   } 
 
   ssend_command(LUT_BLACK_TO_BLACK);
   for(count = 0; count < 42; count++) {
-    ssend_data(lut_bb_fast[count]);
+    ssend_data(lut_bb_fast_42[count]);
   } 
 }
 
 
 
-const unsigned char lut_vcom0[] =
+const unsigned char lut_vcom0_42[] =
 {
 0x40, 0x17, 0x00, 0x00, 0x00, 0x02,        
 0x00, 0x17, 0x17, 0x00, 0x00, 0x02,        
@@ -489,7 +586,7 @@ const unsigned char lut_vcom0[] =
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-const unsigned char lut_vcom0_fast[] =
+const unsigned char lut_vcom0_fast_42[] =
 {
 0x00, 0x0E, 0x00, 0x00, 0x00, 0x01,        
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,        
@@ -502,7 +599,7 @@ const unsigned char lut_vcom0_fast[] =
 
 
 
-const unsigned char lut_ww[] ={
+const unsigned char lut_ww_42[] ={
 0x40, 0x17, 0x00, 0x00, 0x00, 0x02,
 0x90, 0x17, 0x17, 0x00, 0x00, 0x02,
 0x40, 0x0A, 0x01, 0x00, 0x00, 0x01,
@@ -512,7 +609,7 @@ const unsigned char lut_ww[] ={
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-const unsigned char lut_ww_fast[] ={
+const unsigned char lut_ww_fast_42[] ={
 0xA0, 0x0E, 0x00, 0x00, 0x00, 0x01,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -523,7 +620,7 @@ const unsigned char lut_ww_fast[] ={
 };
 
 
-const unsigned char lut_bw[] ={
+const unsigned char lut_bw_42[] ={
 0x40, 0x17, 0x00, 0x00, 0x00, 0x02,
 0x90, 0x17, 0x17, 0x00, 0x00, 0x02,
 0x40, 0x0A, 0x01, 0x00, 0x00, 0x01,
@@ -534,7 +631,7 @@ const unsigned char lut_bw[] ={
 };
 
 
-const unsigned char lut_bw_fast[] ={
+const unsigned char lut_bw_fast_42[] ={
 0xA0, 0x0E, 0x00, 0x00, 0x00, 0x01,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -544,7 +641,7 @@ const unsigned char lut_bw_fast[] ={
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,     
 };
 
-const unsigned char lut_bb[] ={
+const unsigned char lut_bb_42[] ={
 0x80, 0x17, 0x00, 0x00, 0x00, 0x02,
 0x90, 0x17, 0x17, 0x00, 0x00, 0x02,
 0x80, 0x0A, 0x01, 0x00, 0x00, 0x01,
@@ -554,7 +651,7 @@ const unsigned char lut_bb[] ={
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,        
 };
 
-const unsigned char lut_bb_fast[] ={
+const unsigned char lut_bb_fast_42[] ={
 0x50, 0x0E, 0x00, 0x00, 0x00, 0x01,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -565,7 +662,7 @@ const unsigned char lut_bb_fast[] ={
 };
 
 
-const unsigned char lut_wb[] ={
+const unsigned char lut_wb_42[] ={
 0x80, 0x17, 0x00, 0x00, 0x00, 0x02,
 0x90, 0x17, 0x17, 0x00, 0x00, 0x02,
 0x80, 0x0A, 0x01, 0x00, 0x00, 0x01,
@@ -575,7 +672,7 @@ const unsigned char lut_wb[] ={
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,         
 };
 
-const unsigned char lut_wb_fast[] ={
+const unsigned char lut_wb_fast_42[] ={
 0x50, 0x0E, 0x00, 0x00, 0x00, 0x01,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
