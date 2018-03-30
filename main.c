@@ -103,7 +103,7 @@ run(void)
     return;
   }
 
-  unsigned char* frame_buffer = (unsigned char*)malloc(EPD_WIDTH / 8 * EPD_HEIGHT);
+  unsigned char* frame_buffer = (unsigned char*)malloc(400 / 8 * 300);
   char in[20] = "\0";
   char* str = (char*)malloc((cols + 10) * sizeof(char));
 	for (1;;) {

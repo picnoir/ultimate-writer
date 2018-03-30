@@ -31,8 +31,9 @@ char *argv0;
 #define Glyph Glyph_
 #define Font Font_
 
-#include "screen.h"
 #include "st.h"
+#include "screen.h"
+#include "config.h"
 
 #if   defined(__linux)
  #include <pty.h>
@@ -123,9 +124,6 @@ static void printscreen(const Arg *) ;
 static void iso14755(const Arg *);
 static void toggleprinter(const Arg *);
 static void sendbreak(const Arg *);
-
-/* config.h for applying patches and the configuration. */
-#include "config.h"
 
 static void execsh(void);
 static void stty(void);

@@ -1,3 +1,6 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+#include <stdlib.h>
 /* See LICENSE file for copyright and license details. */
 
 /*
@@ -98,6 +101,24 @@ unsigned int defaultbg = 0;
 unsigned int defaultcs = 256;
 unsigned int defaultrcs = 257;
 
+#ifdef USE_GOODDISPLAY75
+unsigned int screen_type = GOODDISPLAY75;
+/*
+ * Default columns and rows numbers
+ */
+unsigned int cols = 58;
+unsigned int rows = 24;
+#endif
+
+#ifdef USE_GOODDISPLAY42
+unsigned int screen_type = GOODDISPLAY42;
+/*
+ * Default columns and rows numbers
+ */
+unsigned int cols = 24;
+unsigned int rows = 12;
+#endif
+
 /*
  * Default shape of cursor
  * 2: Block ("█")
@@ -105,28 +126,13 @@ unsigned int defaultrcs = 257;
  * 6: Bar ("|")
  * 7: Snowman ("☃")
  */
-unsigned int cursorshape = 2;
-
-/*
- * Default columns and rows numbers
- */
-
-unsigned int cols = 58;
-unsigned int rows = 24;
+unsigned int cursorshape = 6;
 
 /*
  * Color used to display font attributes when fontconfig selected a font which
  * doesn't match the ones requested.
  */
 unsigned int defaultattr = 11;
-
-/*
- * Screen installed on the typewriter.
- *
- * GOODDISPLAY75 for waveshare/good display 7.5" screen.
- * GOODDISPLAY42 for waveshare/good display 4.2" screen.
- */
-unsigned int screen_type = GOODDISPLAY75;
 
 /*
  * Printable characters in ASCII, used to estimate the advance width
@@ -136,4 +142,4 @@ char ascii_printable[] =
 	" !\"#$%&'()*+,-./0123456789:;<=>?"
 	"@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
 	"`abcdefghijklmnopqrstuvwxyz{|}~";
-
+#endif

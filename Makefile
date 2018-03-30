@@ -14,15 +14,10 @@ options:
 	@echo "LDFLAGS = $(STLDFLAGS)"
 	@echo "CC      = $(CC)"
 
+${OBJ}: config.mk
+
 .c.o:
 	$(CC) $(STCFLAGS) -c $<
-
-st.o: config.h st.h screen.h
-screen.o: config.h screen.h
-main.o: arg.h st.h screen.h
-font.o: font.h
-
-$(OBJ): config.h config.mk
 
 ultimatewriter: $(OBJ)
 	$(CC) -o $@ $(OBJ) $(STLDFLAGS)

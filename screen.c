@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
 int sorientation = ROTATE_0;
 
 //Interface-Level primitives
@@ -13,6 +12,7 @@ int init_if(void){
     printf("Cannot init BCM2835. Is the kernel module installed?\n");
     exit(-1);
   }
+  bcm2835_gpio_fsel(CS_PIN, BCM2835_GPIO_FSEL_OUTP);
   bcm2835_gpio_fsel(RST_PIN, BCM2835_GPIO_FSEL_OUTP);
   bcm2835_gpio_fsel(DC_PIN, BCM2835_GPIO_FSEL_OUTP);
   bcm2835_gpio_fsel(BUSY_PIN, BCM2835_GPIO_FSEL_INPT);
@@ -64,6 +64,7 @@ int sinit(void) {
 }
 
 int init_waveshare_75(void) {
+  printf("init 75\n");
   if(init_if() != 0){
     exit(-1);
   }
@@ -150,6 +151,7 @@ int init_waveshare_75(void) {
 }
 
 int init_waveshare_42(void) {
+  printf("Init 42");
   if (init_if() != 0) {
     exit(-1);
   }
@@ -209,6 +211,7 @@ void sdisplay_frame(const unsigned char* frame_buffer){
 }
 
 void sdisplay_frame_42(const unsigned char* frame_buffer){
+  printf("Starting display frame");
   unsigned int width = 400, height = 300;
   ssend_command(RESOLUTION_SETTING);
   ssend_data(width >> 8);        
@@ -239,6 +242,7 @@ void sdisplay_frame_42(const unsigned char* frame_buffer){
   ssend_command(DISPLAY_REFRESH); 
   delay_ms(100);
   swait_until_idle();
+  printf("Displayed frame");
 }
 
 void sdisplay_frame_75(const unsigned char* frame_buffer){
@@ -577,7 +581,7 @@ void set_fast_lut(void) {
 
 const unsigned char lut_vcom0_42[] =
 {
-0x40, 0x17, 0x00, 0x00, 0x00, 0x02,        
+0x00, 0x17, 0x00, 0x00, 0x00, 0x02,        
 0x00, 0x17, 0x17, 0x00, 0x00, 0x02,        
 0x00, 0x0A, 0x01, 0x00, 0x00, 0x01,        
 0x00, 0x0E, 0x0E, 0x00, 0x00, 0x02,        
@@ -599,7 +603,8 @@ const unsigned char lut_vcom0_fast_42[] =
 
 
 
-const unsigned char lut_ww_42[] ={
+const unsigned char lut_ww_42[] =
+{
 0x40, 0x17, 0x00, 0x00, 0x00, 0x02,
 0x90, 0x17, 0x17, 0x00, 0x00, 0x02,
 0x40, 0x0A, 0x01, 0x00, 0x00, 0x01,
