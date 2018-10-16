@@ -1,7 +1,7 @@
 Ultimate Writer
 ========
 
-![]()
+![Picture of the Ultimate Writer Prototype](img/ultimate-writer.jpg)
 
 Ultimate writer is an attempt to create the perfect digital writing device; it may also be a clickbaity name, who knows.
 
