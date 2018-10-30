@@ -48,6 +48,8 @@ make
 sudo make install
 ```
 
+**Note:** The current master branch could be broken, please, use the latest release tag.
+
 If, for some reason, you want to uninstall this software:
 
 ```
