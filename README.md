@@ -59,13 +59,13 @@ sudo make uninstall
 You can then start the ultimate writer service. This service will display a root shell on the e-ink screen: 
 
 ```
-sudo systemctl start writerpi
+sudo systemctl start ultimatewriter
 ```
 
 If you want the service to automatically start on boot:
 
 ```
-sudo systemctl enable writerpi
+sudo systemctl enable ultimatewriter
 ```
 
 ## Troubleshooting
