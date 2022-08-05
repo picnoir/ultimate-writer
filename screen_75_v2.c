@@ -70,6 +70,17 @@ int sinit(void) {
   ssend_data(0x00);
   ssend_data(0x00);
   
+  sset_lut(); // Clear screen
+  ssend_command(DISPLAY_START_TRANSMISSION_2);
+  for (int j = 0; j < EPD_HEIGHT; j++) {
+    for (int i = 0; i < EPD_WIDTH/8; i++) {
+      ssend_data(0);
+    }
+  }
+  ssend_command(DISPLAY_REFRESH);
+  delay_ms(100);
+  swait_until_idle();
+
   sset_lut_fast();
 
   return 0;
@@ -95,8 +106,6 @@ void ssend_data(unsigned char data){
 }
 
 void sdisplay_frame(const unsigned char* frame_buffer){
-  
-  unsigned char temp1, temp2;
   ssend_command(DISPLAY_START_TRANSMISSION_2);
   for (int j = 0; j < EPD_HEIGHT; j++) {
     for (int i = 0; i < EPD_WIDTH/8; i++) {
