@@ -3,7 +3,13 @@
 
 include config.mk
 
-SRC = st.c screen.c main.c font12.c font16.c font20.c font24.c font8.c
+SRC_COMMON = st.c screen.c main.c font12.c font16.c font20.c font24.c font8.c
+ifeq ($(SCREEN),75_V1)
+SRC = $(SRC_COMMON) screen_75_v1.c
+endif
+ifeq ($(SCREEN),75_V2)
+SRC = $(SRC_COMMON) screen_75_v2.c
+endif
 OBJ = $(SRC:.c=.o)
 
 all: options ultimatewriter
@@ -15,7 +21,7 @@ options:
 	@echo "CC      = $(CC)"
 
 .c.o:
-	$(CC) $(STCFLAGS) -c $<
+	$(CC) $(STCFLAGS) -DSCREEN_$(SCREEN) -c $<
 
 st.o: config.h st.h screen.h
 screen.o: config.h screen.h
@@ -25,7 +31,7 @@ font.o: font.h
 $(OBJ): config.h config.mk
 
 ultimatewriter: $(OBJ)
-	$(CC) -o $@ $(OBJ) $(STLDFLAGS)
+	$(CC) -o $@ $(OBJ) $(STLDFLAGS) -DSCREEN_$(SCREEN)
 
 clean:
 	rm -f st $(OBJ)

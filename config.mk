@@ -1,5 +1,6 @@
 # writerpi version
 VERSION = 0.1
+SCREEN = 75_V2
 
 # Customize below to fit your system
 
