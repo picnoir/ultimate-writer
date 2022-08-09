@@ -2,6 +2,16 @@
 #include "fonts.h"
 #include "st.h"
 
+// Pin level definition
+#define LOW                                         0
+#define HIGH                                        1
+
+// Pin definition
+#define RST_PIN                                     17
+#define DC_PIN                                      25
+#define CS_PIN                                      8
+#define BUSY_PIN                                    24
+
 // Display orientation
 #define ROTATE_0                                    0
 #define ROTATE_90                                   1
@@ -14,39 +24,20 @@
 #define COLORED                                     1
 #define UNCOLORED                                   0
 
-typedef enum {GOODDISPLAY75, GOODDISPLAY42} screen_type_t;
-
-/*
- * Screen installed on the typewriter.
- *
- * Set to:
- *   - USE_GOODDISPLAY75 for waveshare/good display 7.5" screen.
- *   - USE_GOODDISPLAY42 for waveshare/good display 4.2" screen.
- */
-#define USE_GOODDISPLAY42
-// #define USE_GOODDISPLAY75
-
-#ifdef USE_GOODDISPLAY75
-#include "gooddisplay75_pinout.h"
+// See makefile to configure
+#ifdef SCREEN_75_V1
+#include "screen_75_v1.h"
 #endif
 
-#ifdef USE_GOODDISPLAY42
-#include "gooddisplay42_pinout.h"
+#ifdef SCREEN_75_V2
+#include "screen_75_v2.h"
 #endif
 
-// Dirty hack. We don't need this 
+// Dirty hack. We don't need this
 // struct. TODO clean this.
-typedef int GlyphFontSpec;
-
-void run(void);
+// typedef int GlyphFontSpec;
 
 // E-Ink functions
-// Interface-Level primitives.
-int init_if(void);
-void digital_write(int pin, int value);
-int digital_read(int pin);
-void delay_ms(unsigned int delayTime);
-void spi_transfer(unsigned char data);
 // Screen driver functions.
 int sinit(void);
 int init_waveshare_75(void);
@@ -61,10 +52,7 @@ void sdisplay_frame_fast(const unsigned char* frame_buffer);
 void sdisplay_frame_fast_42(const unsigned char* frame_buffer);
 void swait_until_idle(void);
 void ssleep(void);
-void set_lut(void);
-void set_lut_42(void);
-void set_fast_lut(void);
-void set_fast_lut_42(void);
+
 // Framebuffer painting functions.
 void pclear(int colored, unsigned char* frame_buffer);
 void pdraw_absolute_pixel(int x, int y, int colored, unsigned char* frame_buffer);
@@ -77,38 +65,4 @@ void pdraw_horizontal_line(int x, int y, int width, int colored, unsigned char* 
 void pdraw_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
 void pdraw_filled_rectangle(int x0, int y0, int x1, int y1, int colored, unsigned char* frame_buffer);
 void pdraw_term(Line* line, unsigned char* frame_buffer);
-// LUTs
-extern const unsigned char lut_vcom0_42[];
-extern const unsigned char lut_ww_42[];
-extern const unsigned char lut_bw_42[];
-extern const unsigned char lut_bb_42[];
-extern const unsigned char lut_wb_42[];
-
-extern const unsigned char lut_vcom0_fast_42[];
-extern const unsigned char lut_ww_fast_42[];
-extern const unsigned char lut_bw_fast_42[];
-extern const unsigned char lut_bb_fast_42[];
-extern const unsigned char lut_wb_fast_42[];
-
-/* config.h globals */
-extern int borderpx;
-extern float cwscale;
-extern float chscale;
-extern char termname[];
-extern const char *colorname[];
-extern size_t colornamelen;
-extern unsigned int defaultfg;
-extern unsigned int defaultbg;
-extern unsigned int defaultcs;
-extern unsigned int defaultrcs;
-extern unsigned int cursorshape;
-extern unsigned int cols;
-extern unsigned int screen_type;
-extern unsigned int rows;
-extern unsigned int defaultattr;
-extern size_t mshortcutslen;
-extern size_t shortcutslen;
-extern uint forceselmod;
-extern uint selmasks[];
-extern size_t selmaskslen;
-extern char ascii_printable[];
+#endif

@@ -129,6 +129,13 @@ unsigned int rows = 12;
 unsigned int cursorshape = 6;
 
 /*
+ * Default columns and rows numbers
+ */
+
+unsigned int cols = 72;
+unsigned int rows = 30;
+
+/*
  * Color used to display font attributes when fontconfig selected a font which
  * doesn't match the ones requested.
  */
