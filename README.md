@@ -5,7 +5,7 @@ Ultimate Writer
 
 Ultimate writer is an attempt to create the perfect digital writing device; it may also be a clickbaity name, who knows.
 
-It was built upon the following principles: 
+It was built upon the following principles:
 
 - **Easily readable e-ink screen**. You can read it effortlessly even in sunlight.
 - **Long lasting battery life**. You can have a 3 days writing retreat (~20 hours) without recharging it.
@@ -13,7 +13,7 @@ It was built upon the following principles:
 - **Standard OS**. You want to use your favorite console-based text editor. You also want a shell access to tweak your setup without reprogramming the device.
 - **Nice full-size mechanical keyboard**.
 
-My ultimate writing device is probably not your ultimate writing device. However, I think we can share a common codebase. 
+My ultimate writing device is probably not your ultimate writing device. However, I think we can share a common codebase.
 
 This repo is hosting this codebase.
 
@@ -43,7 +43,7 @@ Then, open a terminal on the raspberry pi and build ultimate writer:
 
 ```
 sudo apt-get install build-essential git
-git clone $GITHUB_URL && cd ultimate-writer 
+git clone $GITHUB_URL && cd ultimate-writer
 make
 sudo make install
 ```
@@ -56,7 +56,7 @@ If, for some reason, you want to uninstall this software:
 sudo make uninstall
 ```
 
-You can then start the ultimate writer service. This service will display a root shell on the e-ink screen: 
+You can then start the ultimate writer service. This service will display a root shell on the e-ink screen:
 
 ```
 sudo systemctl start ultimatewriter
@@ -95,10 +95,10 @@ This project is not fully done yet, we would like to implement:
 - 7.5" screen partial refresh.
 - Get rid of Logkeys by parsing directly /dev/input events and applying the appropriate keymap.
 - Run the terminal emulator in an unprivileged environment.
-- Get a more reproducible case design (custom keyboard, integrated board design?). 
+- Get a more reproducible case design (custom keyboard, integrated board design?).
 - Build and sell a small batch of these?
 
 ## Special Thanks
 
-- [Suckless team](https://suckless.org): we use a hacked version of [ST](https://st.suckless.org/) for terminal emulation. (Note: the Suckless team do not endorse nor is related to this project, we just like their work)
+- [Suckless team](https://suckless.org): we use a hacked version of [ST](https://st.suckless.org/) for terminal emulation. (Note: the Suckless team do not endorse nor is related to this project)
 - [Freewrite](https://getfreewrite.com/): one of the major inspirations for this project. Almost perfect, too bad it is that closed and expensive.
